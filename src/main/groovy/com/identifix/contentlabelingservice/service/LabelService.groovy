@@ -6,8 +6,6 @@ import com.identifix.contentlabelingservice.model.LabelRequest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
-import java.util.regex.Matcher
-import java.util.regex.Pattern
 
 @Service
 class LabelService {
@@ -17,16 +15,9 @@ class LabelService {
 
     String createLabel(LabelRequest request) {
         List<BaseRule> baseRules = baseRulesComponent.getBaseRules(request.getPublisher(), request.getManualType())
-        String label = "Not Found"
-        for(BaseRule baseRule : baseRules) {
-            Pattern pattern = Pattern.compile(buildRegex(baseRule.getRegexWords()))
-            Matcher matcher = pattern.matcher(baseRule.getType() == BaseRuleType.PAGE ? request.getTitle() : request.getTocPath())
-            if (matcher.matches()) {
-                label = baseRule.getRule()
-                break
-            }
-        }
-        label
+        baseRules.find {
+            (it.getType() == BaseRuleType.PAGE ? request.getTitle() : request.getTocPath()) =~ buildRegex(it.getRegexWords())
+        }?.getRule() ?: "Not Found"
     }
 
     private static String buildRegex(String regexWords) {
