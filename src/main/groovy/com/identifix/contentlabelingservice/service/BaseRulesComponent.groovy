@@ -21,15 +21,13 @@ class BaseRulesComponent {
 
     private static List<BaseRule> createBaseRulesFromString(String baseRulesWhole) {
         Map<String, BaseRule> baseRulesMap = new HashMap<>()
-        Arrays.stream(baseRulesWhole.split("\\r?\\n")).forEach({baseRulesLine ->
-
-            String[] baseRuleValues = baseRulesLine.split(",")
+        baseRulesWhole.split("\\r?\\n").each {
+            String[] baseRuleValues = it.split(",")
             if (baseRuleValues.size() >= 2 && !baseRulesMap.containsKey(baseRuleValues[0])) {
                 BaseRule baseRule = createBaseRule(baseRuleValues)
-                baseRulesMap.put(baseRuleValues[0],baseRule)
+                baseRulesMap.put(baseRuleValues[0], baseRule)
             }
-
-        })
+        }
         baseRulesMap.values() as List<BaseRule>
     }
 
@@ -48,6 +46,6 @@ class BaseRulesComponent {
     }
 
     String getBaseRulesFromRepository(String publisher, String manualType) {
-        new String (Files.readAllBytes(baseRules.getFile().toPath()))
+        new String(Files.readAllBytes(baseRules.getFile().toPath()))
     }
 }
