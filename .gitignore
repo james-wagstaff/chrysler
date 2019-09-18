@@ -32,3 +32,4 @@ out/
 .vscode/
 
 documentTable_finished.csv
+.DS_Store
