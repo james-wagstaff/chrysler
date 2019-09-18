@@ -10,44 +10,30 @@ class LabelControllerSpec extends Specification {
     @Autowired
     LabelController controller
 
-    def 'Create Excel Labels' () {
-        boolean test = true
+    def 'Apply labels to spreadsheet functional test' () {
         when:
-            StringBuilder baseRulesWithLabels = new StringBuilder("Label,title,tocpath,category,linkToPage,nuxeoId\r\n")
+            StringBuilder labelSpreadsheet = new StringBuilder("Label,title,tocpath,category,linkToPage,nuxeoId\r\n")
             String originalCSV = new File("src/test/resources/documentTable.csv").text
-            Arrays.stream(originalCSV.split("\\r?\\n"))
-                    .filter({ value -> !value.equalsIgnoreCase("Label,title,tocpath,category,linkToPage,nuxeoId") })
-                    .forEach({ value ->
-                        Document document = createDocument(value)
-                        LabelRequest request = new LabelRequest()
-                        request.setPublisher("Ford")
-                        request.setManualType(document.category)
-                        request.setTitle(document.title)
-                        request.setTocPath(document.tocpath)
-                        document.setLabel(controller.createLabel(request).getBody().toString())
+            originalCSV.split("\\r?\\n").drop(1).each {
+                Document document = createDocument(it)
+                LabelRequest request = new LabelRequest()
+                request.publisher = "Ford"
+                request.manualType = document.category
+                request.title = document.title
+                request.tocPath = document.tocpath
+                document.label = controller.createLabel(request).getBody().toString()
 
-                        baseRulesWithLabels.append(document.getLabel())
-                        baseRulesWithLabels.append(",")
-                        baseRulesWithLabels.append(document.getTitle())
-                        baseRulesWithLabels.append(",")
-                        baseRulesWithLabels.append(document.getTocpath())
-                        baseRulesWithLabels.append(",")
-                        baseRulesWithLabels.append(document.getCategory())
-                        baseRulesWithLabels.append(",")
-                        baseRulesWithLabels.append(document.getLinkToPage())
-                        baseRulesWithLabels.append(",")
-                        baseRulesWithLabels.append(document.getNuxeoId())
-                        baseRulesWithLabels.append("\r\n")
-                    })
+                labelSpreadsheet.append("${document.label},${document.title},${document.tocpath},${document.category},${document.linkToPage},${document.nuxeoId}\r\n")
+            }
 
             File file = new File("src/test/resources/documentTable_finished.csv")
             PrintWriter writer = new PrintWriter(file)
             writer.print("")
-            file.append(baseRulesWithLabels.toString().getBytes())
+            file.append(labelSpreadsheet.toString().getBytes())
             file.createNewFile()
 
         then:
-        test
+            true
     }
 
     private static Document createDocument(String docValues) {
