@@ -50,7 +50,7 @@ class LabelControllerSpec extends Specification {
         test
     }
 
-    private Document createDocument(String docValues) {
+    private static Document createDocument(String docValues) {
         String[] docValueArray = docValues.split(",")
         new Document(docValueArray[0],docValueArray[1],docValueArray[2],docValueArray[3],docValueArray[4],docValueArray[5])
     }

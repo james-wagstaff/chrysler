@@ -2,15 +2,15 @@ package com.identifix.contentlabelingservice.model
 
 class BaseRule {
     private BaseRuleType type
-    private String regex
+    private String regexWords
     private String rule
 
-    String getRegex() {
-        return regex
+    String getRegexWords() {
+        return regexWords
     }
 
-    void setRegex(String regex) {
-        this.regex = regex
+    void setRegexWords(String regexWords) {
+        this.regexWords = regexWords
     }
 
     String getRule() {
