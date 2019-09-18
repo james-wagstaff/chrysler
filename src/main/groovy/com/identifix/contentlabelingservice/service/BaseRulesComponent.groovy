@@ -35,19 +35,19 @@ class BaseRulesComponent {
 
     private static BaseRule createBaseRule(String[] baseRuleValues) {
         BaseRule baseRule = new BaseRule()
-        if (baseRuleValues.size() == 3 && baseRuleValues[2].equalsIgnoreCase("HEADER")) {
+        if (baseRuleValues.size() == 3 && baseRuleValues[2].contains("HEADER")) {
             baseRule.setType(BaseRuleType.HEADER)
         } else {
             baseRule.setType(BaseRuleType.PAGE)
         }
 
-        baseRule.setRegex(baseRuleValues[0])
+        baseRule.setRegexWords(baseRuleValues[0])
         baseRule.setRule(baseRuleValues[1])
 
         baseRule
     }
 
-    private String getBaseRulesFromRepository(String publisher, String manualType) {
+    String getBaseRulesFromRepository(String publisher, String manualType) {
         new String (Files.readAllBytes(baseRules.getFile().toPath()))
     }
 }

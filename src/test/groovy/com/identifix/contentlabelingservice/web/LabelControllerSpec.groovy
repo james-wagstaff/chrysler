@@ -14,7 +14,7 @@ class LabelControllerSpec extends Specification {
         boolean test = true
         when:
             StringBuilder baseRulesWithLabels = new StringBuilder("Label,title,tocpath,category,linkToPage,nuxeoId\r\n")
-            String originalCSV = new File("src/test/resources/2016F150.csv").text
+            String originalCSV = new File("src/test/resources/documentTable.csv").text
             Arrays.stream(originalCSV.split("\\r?\\n"))
                     .filter({ value -> !value.equalsIgnoreCase("Label,title,tocpath,category,linkToPage,nuxeoId") })
                     .forEach({ value ->
@@ -40,7 +40,7 @@ class LabelControllerSpec extends Specification {
                         baseRulesWithLabels.append("\r\n")
                     })
 
-            File file = new File("src/test/resources/2016F150_finished.csv")
+            File file = new File("src/test/resources/documentTable_finished.csv")
             PrintWriter writer = new PrintWriter(file)
             writer.print("")
             file.append(baseRulesWithLabels.toString().getBytes())
@@ -50,7 +50,7 @@ class LabelControllerSpec extends Specification {
         test
     }
 
-    private Document createDocument(String docValues) {
+    private static Document createDocument(String docValues) {
         String[] docValueArray = docValues.split(",")
         new Document(docValueArray[0],docValueArray[1],docValueArray[2],docValueArray[3],docValueArray[4],docValueArray[5])
     }
