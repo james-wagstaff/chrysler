@@ -69,4 +69,20 @@ class LabelServiceSpec extends Specification {
         label == "Not Found"
         1 * baseRulesComponent.getBaseRules(request.publisher, request.manualType) >> baseRules
     }
+
+    def 'Call label service with refresh'() {
+        LabelRequest request = new LabelRequest()
+        request.setTitle("tester")
+        request.setTocPath("tester")
+        request.setManualType("workshop")
+        request.setPublisher("ford")
+        request.setRefresh(true)
+
+        when: 'getting label'
+        String label = service.createLabel(request)
+        then:
+        label == "tester"
+        1 * baseRulesComponent.evictBaseRuleFromCache(request.publisher, request.manualType)
+        1 * baseRulesComponent.getBaseRules(request.publisher, request.manualType) >> baseRules
+    }
 }
