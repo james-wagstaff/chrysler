@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 @SpringBootApplication(scanBasePackages = ['com.identifix'])
 class ContentLabelingServiceApplication {
 
-	static void main(String[] args) {
-		SpringApplication.run(ContentLabelingServiceApplication, args)
-	}
+    static void main(String[] args) {
+        SpringApplication.run(ContentLabelingServiceApplication, args)
+    }
 
 }

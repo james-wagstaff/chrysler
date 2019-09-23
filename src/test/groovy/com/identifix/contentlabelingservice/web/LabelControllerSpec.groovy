@@ -21,7 +21,7 @@ class LabelControllerSpec extends Specification {
                 request.manualType = document.category
                 request.title = document.title
                 request.tocPath = document.tocpath
-                document.label = controller.createLabel(request).getBody().toString()
+                document.label = controller.createLabel(request).body.toString()
 
                 labelSpreadsheet.append("${document.label},${document.title},${document.tocpath},${document.category},${document.linkToPage},${document.nuxeoId}\r\n")
             }
@@ -29,15 +29,16 @@ class LabelControllerSpec extends Specification {
             File file = new File("src/test/resources/documentTable_finished.csv")
             PrintWriter writer = new PrintWriter(file)
             writer.print("")
-            file.append(labelSpreadsheet.toString().getBytes())
+            file.append(labelSpreadsheet.toString().bytes)
             file.createNewFile()
 
         then:
             true
     }
 
+    @SuppressWarnings('FactoryMethodName')
     private static Document createDocument(String docValues) {
         String[] docValueArray = docValues.split(",")
-        new Document(docValueArray[0],docValueArray[1],docValueArray[2],docValueArray[3],docValueArray[4],docValueArray[5])
+        new Document(docValueArray[0], docValueArray[1], docValueArray[2], docValueArray[3], docValueArray[4], docValueArray[5])
     }
 }

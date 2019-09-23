@@ -6,7 +6,6 @@ import com.identifix.contentlabelingservice.model.LabelRequest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
-
 @Service
 class LabelService {
 
@@ -14,10 +13,10 @@ class LabelService {
     BaseRulesComponent baseRulesComponent
 
     String createLabel(LabelRequest request) {
-        List<BaseRule> baseRules = baseRulesComponent.getBaseRules(request.getPublisher(), request.getManualType())
+        List<BaseRule> baseRules = baseRulesComponent.getBaseRules(request.publisher, request.manualType)
         baseRules.find {
-            (it.getType() == BaseRuleType.PAGE ? request.getTitle() : request.getTocPath()) =~ buildRegex(it.getRegexWords())
-        }?.getRule() ?: "Not Found"
+            (it.type == BaseRuleType.PAGE ? request.title : request.tocPath) =~ buildRegex(it.regexWords)
+        }?.rule ?: "Not Found"
     }
 
     private static String buildRegex(String regexWords) {

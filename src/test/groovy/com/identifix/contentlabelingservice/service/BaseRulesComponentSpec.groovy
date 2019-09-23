@@ -7,27 +7,27 @@ import spock.lang.Specification
 class BaseRulesComponentSpec extends Specification {
     def 'Base Rules Component is called with no header in base rule'() {
         def baseRulesComponent = Spy(BaseRulesComponent) {
-            getBaseRulesFromRepository("ford","workshop") >> "testRegex,test"
+            getBaseRulesFromRepository("ford", "workshop") >> "testRegex,test"
         }
         when: 'getting base rules'
             List<BaseRule> baseRules = baseRulesComponent.getBaseRules("ford", "workshop")
         then:
             baseRules.size() == 1
-            baseRules.get(0).getType() == BaseRuleType.PAGE
-            baseRules.get(0).getRegexWords().equalsIgnoreCase("testRegex")
-            baseRules.get(0).getRule().equalsIgnoreCase("test")
+            baseRules.get(0).type == BaseRuleType.PAGE
+            baseRules.get(0).regexWords.equalsIgnoreCase("testRegex")
+            baseRules.get(0).rule.equalsIgnoreCase("test")
     }
 
     def 'Base Rules Component is called with header in base rule'() {
         def baseRulesComponent = Spy(BaseRulesComponent) {
-            getBaseRulesFromRepository("ford","workshop") >> "testRegex,test, HEADER"
+            getBaseRulesFromRepository("ford", "workshop") >> "testRegex,test, HEADER"
         }
         when: 'getting base rules'
         List<BaseRule> baseRules = baseRulesComponent.getBaseRules("ford", "workshop")
         then:
         baseRules.size() == 1
-        baseRules.get(0).getType() == BaseRuleType.HEADER
-        baseRules.get(0).getRegexWords().equalsIgnoreCase("testRegex")
-        baseRules.get(0).getRule().equalsIgnoreCase("test")
+        baseRules.get(0).type == BaseRuleType.HEADER
+        baseRules.get(0).regexWords.equalsIgnoreCase("testRegex")
+        baseRules.get(0).rule.equalsIgnoreCase("test")
     }
 }
