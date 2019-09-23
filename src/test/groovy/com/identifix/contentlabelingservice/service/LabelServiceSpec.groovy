@@ -9,7 +9,7 @@ import spock.lang.Specification
 class LabelServiceSpec extends Specification {
     @SpringBean
     BaseRulesComponent baseRulesComponent = Mock()
-    List<BaseRule> baseRules = new ArrayList<>()
+    List<BaseRule> baseRules = []
     LabelService service = new LabelService()
 
     void setup() {
@@ -25,7 +25,6 @@ class LabelServiceSpec extends Specification {
         baseRules.add(baseRule)
         baseRules.add(baseRule1)
 
-
         service.baseRulesComponent = baseRulesComponent
     }
 
@@ -40,7 +39,7 @@ class LabelServiceSpec extends Specification {
             String label = service.createLabel(request)
         then:
             label == "test"
-            1 * baseRulesComponent.getBaseRules(request.getPublisher(), request.getManualType()) >> baseRules
+            1 * baseRulesComponent.getBaseRules(request.publisher, request.manualType) >> baseRules
     }
 
     def 'Call label service for found label for header'() {
@@ -54,7 +53,7 @@ class LabelServiceSpec extends Specification {
             String label = service.createLabel(request)
         then:
             label == "tester"
-        1 * baseRulesComponent.getBaseRules(request.getPublisher(), request.getManualType()) >> baseRules
+        1 * baseRulesComponent.getBaseRules(request.publisher, request.manualType) >> baseRules
     }
 
     def 'Call label service for not found label'() {
@@ -68,6 +67,6 @@ class LabelServiceSpec extends Specification {
         String label = service.createLabel(request)
         then:
         label == "Not Found"
-        1 * baseRulesComponent.getBaseRules(request.getPublisher(), request.getManualType()) >> baseRules
+        1 * baseRulesComponent.getBaseRules(request.publisher, request.manualType) >> baseRules
     }
 }

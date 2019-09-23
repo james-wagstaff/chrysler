@@ -8,8 +8,8 @@ import org.springframework.cache.annotation.EnableCaching
 @EnableCaching
 class ContentLabelingServiceApplication {
 
-	static void main(String[] args) {
-		SpringApplication.run(ContentLabelingServiceApplication, args)
-	}
+    static void main(String[] args) {
+        SpringApplication.run(ContentLabelingServiceApplication, args)
+    }
 
 }

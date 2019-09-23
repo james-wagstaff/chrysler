@@ -20,9 +20,7 @@ class BaseRulesComponent {
     @Cacheable(cacheNames = "BaseRules")
     @SuppressWarnings("GrMethodMayBeStatic")
     List<BaseRule> getBaseRules(String publisher, String manualType) {
-
         String baseRulesWhole =  getBaseRulesFromRepository(publisher, manualType)
-
         Map<String, BaseRule> baseRulesMap = [:]
         baseRulesWhole.split("\\r?\\n").each {
             String[] baseRuleValues = it.split(",")
@@ -34,6 +32,7 @@ class BaseRulesComponent {
         baseRulesMap.values() as List<BaseRule>
     }
 
+    @SuppressWarnings('DuplicateNumberLiteral')
     private static BaseRule createBaseRule(String[] baseRuleValues) {
         BaseRule baseRule = new BaseRule()
         if (baseRuleValues.size() == 3 && baseRuleValues[2].contains("HEADER")) {
