@@ -2,25 +2,24 @@ package com.identifix.contentlabelingservice.service
 
 import com.identifix.contentlabelingservice.model.BaseRule
 import com.identifix.contentlabelingservice.model.BaseRuleType
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.core.io.Resource
+import groovy.util.logging.Slf4j
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Component
+import org.springframework.web.client.RestTemplate
 
-import java.nio.file.Files
 
 @Component
+@Slf4j
 class BaseRulesComponent {
 
-    @Value("classpath:ford/workshop_base_rules.csv")
-    private Resource baseRules
-
+    @Cacheable(cacheNames = "BaseRules")
+    @SuppressWarnings("GrMethodMayBeStatic")
     List<BaseRule> getBaseRules(String publisher, String manualType) {
-        String baseRulesWhole = getBaseRulesFromRepository(publisher, manualType)
-        createBaseRulesFromString(baseRulesWhole)
-    }
 
-    private static List<BaseRule> createBaseRulesFromString(String baseRulesWhole) {
-        Map<String, BaseRule> baseRulesMap = new HashMap<>()
+        String baseRulesWhole =  getBaseRulesFromRepository(publisher, manualType)
+
+        Map<String, BaseRule> baseRulesMap = [:]
         baseRulesWhole.split("\\r?\\n").each {
             String[] baseRuleValues = it.split(",")
             if (baseRuleValues.size() >= 2 && !baseRulesMap.containsKey(baseRuleValues[0])) {
@@ -45,7 +44,15 @@ class BaseRulesComponent {
         baseRule
     }
 
+    @SuppressWarnings("GrMethodMayBeStatic")
     String getBaseRulesFromRepository(String publisher, String manualType) {
-        new String(Files.readAllBytes(baseRules.getFile().toPath()))
+        log.info("Calling Bitbucket for $publisher, $manualType")
+        new RestTemplate().getForObject("https://bitbucket.audatex.com/projects/GSRMRA/repos/oem_base_rules/raw/${publisher.toLowerCase()}/${manualType.toLowerCase()}_base_rules.csv", String.class)
+    }
+
+    @CacheEvict(cacheNames = "BaseRules")
+    @SuppressWarnings("GrMethodMayBeStatic")
+    void evictBaseRuleFromCache(String publisher, String manualType) {
+        log.info("Removing cache for $publisher, $manualType")
     }
 }
