@@ -3,6 +3,7 @@ package com.identifix.contentlabelingservice.service
 import com.identifix.contentlabelingservice.model.BaseRule
 import com.identifix.contentlabelingservice.model.BaseRuleType
 import groovy.util.logging.Slf4j
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Component
@@ -12,6 +13,9 @@ import org.springframework.web.client.RestTemplate
 @Component
 @Slf4j
 class BaseRulesComponent {
+
+    @Value('${baseRulesBaseUrl}')
+    String baseRulesBaseUrl
 
     @Cacheable(cacheNames = "BaseRules")
     @SuppressWarnings("GrMethodMayBeStatic")
@@ -47,7 +51,7 @@ class BaseRulesComponent {
     @SuppressWarnings("GrMethodMayBeStatic")
     String getBaseRulesFromRepository(String publisher, String manualType) {
         log.info("Calling Bitbucket for $publisher, $manualType")
-        new RestTemplate().getForObject("https://bitbucket.audatex.com/projects/GSRMRA/repos/oem_base_rules/raw/${publisher.toLowerCase()}/${manualType.toLowerCase()}_base_rules.csv", String.class)
+        new RestTemplate().getForObject("$baseRulesBaseUrl/raw/${publisher.toLowerCase()}/${manualType.toLowerCase()}_base_rules.csv", String.class)
     }
 
     @CacheEvict(cacheNames = "BaseRules")
