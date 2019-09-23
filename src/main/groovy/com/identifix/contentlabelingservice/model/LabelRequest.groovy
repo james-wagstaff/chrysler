@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiModelProperty
 import javax.validation.constraints.NotEmpty
 import javax.validation.constraints.NotNull
 
-
 @ApiModel(description = "All details needed to find a label through base rules.")
 @ToString(includeNames = true, includePackage = false)
 class LabelRequest {

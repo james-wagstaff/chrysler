@@ -16,7 +16,7 @@ class LabelService {
 
     String createLabel(LabelRequest request) {
         if (request.refresh) {
-            baseRulesComponent.evictBaseRuleFromCache(request.getPublisher(), request.getManualType())
+            baseRulesComponent.evictBaseRuleFromCache(request.publisher, request.manualType)
         }
 
         List<BaseRule> baseRules = baseRulesComponent.getBaseRules(request.publisher, request.manualType)

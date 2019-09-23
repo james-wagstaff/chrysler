@@ -16,7 +16,7 @@ class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   HttpHeaders headers,
                                                                   HttpStatus status, WebRequest request) {
         List<String> errors = []
-        ex.getBindingResult().getFieldErrors().each {errors.add(it.getDefaultMessage())}
+        ex.bindingResult.fieldErrors.each { errors.add(it.defaultMessage) }
 
         Map<String, Object> body = [:]
         body.put("timestamp", new Date())
