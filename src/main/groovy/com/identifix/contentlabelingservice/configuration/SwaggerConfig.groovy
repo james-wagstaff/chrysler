@@ -18,6 +18,6 @@ class SwaggerConfig {
                 .apis(RequestHandlerSelectors.any())
                 .paths(PathSelectors.any())
                 .build()
-                .ignoredParameterTypes(MetaClass.class)
+                .ignoredParameterTypes(MetaClass)
     }
 }

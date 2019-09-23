@@ -9,8 +9,9 @@ import org.springframework.test.context.junit4.SpringRunner
 @SpringBootTest
 class ContentLabelingServiceApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+    @Test
+    @SuppressWarnings(['JUnitTestMethodWithoutAssert', 'EmptyMethod'])
+    void contextLoads() {
+    }
 
 }

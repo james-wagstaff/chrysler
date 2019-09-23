@@ -20,7 +20,7 @@ class BaseRulesComponent {
     }
 
     private static List<BaseRule> createBaseRulesFromString(String baseRulesWhole) {
-        Map<String, BaseRule> baseRulesMap = new HashMap<>()
+        Map<String, BaseRule> baseRulesMap = [:]
         baseRulesWhole.split("\\r?\\n").each {
             String[] baseRuleValues = it.split(",")
             if (baseRuleValues.size() >= 2 && !baseRulesMap.containsKey(baseRuleValues[0])) {
@@ -31,6 +31,7 @@ class BaseRulesComponent {
         baseRulesMap.values() as List<BaseRule>
     }
 
+    @SuppressWarnings('DuplicateNumberLiteral')
     private static BaseRule createBaseRule(String[] baseRuleValues) {
         BaseRule baseRule = new BaseRule()
         if (baseRuleValues.size() == 3 && baseRuleValues[2].contains("HEADER")) {
@@ -45,7 +46,8 @@ class BaseRulesComponent {
         baseRule
     }
 
+    @SuppressWarnings('UnusedMethodParameter')
     String getBaseRulesFromRepository(String publisher, String manualType) {
-        new String(Files.readAllBytes(baseRules.getFile().toPath()))
+        new String(Files.readAllBytes(baseRules.file.toPath()))
     }
 }

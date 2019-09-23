@@ -1,24 +1,50 @@
-plugins {
-	id 'org.springframework.boot' version '2.1.8.RELEASE'
-	id 'io.spring.dependency-management' version '1.0.8.RELEASE'
-	id 'groovy'
+buildscript {
+
+	repositories {
+		maven {
+			credentials {
+				username readRepoUsername
+				password readRepoPassword
+			}
+			url readRepoUrl
+		}
+	}
+	dependencies {
+		classpath 'com.identifix:identifix-project:+'
+		classpath "io.spring.gradle:dependency-management-plugin:${springDependencyManagementVersion}"
+		classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+	}
 }
 
-group = 'com.identifix'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '1.8'
+apply plugin: 'groovy'
+apply plugin: 'idea'
+apply plugin: 'application'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'com.identifix.identifix-project'
 
-repositories {
-	mavenCentral()
+group = 'com.identifix'
+sourceCompatibility = 1.8
+
+mainClassName = 'com.identifix.contentlabelingservice.ContentLabelingServiceApplication'
+
+repositories.addAll buildscript.repositories
+
+dependencyManagement {
+	imports {
+		mavenBom "io.pivotal.spring.cloud:spring-cloud-services-dependencies:${springCloudServicesVersion}"
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
 }
 
 dependencies {
 	implementation "org.springframework.boot:spring-boot-starter-aop:${springBootVersion}"
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'io.springfox:springfox-swagger2:2.9.2'
-	implementation 'io.springfox:springfox-swagger-ui:2.9.2'
+	implementation "io.springfox:springfox-swagger2:${springfoxSwaggerVersion}"
+	implementation "io.springfox:springfox-swagger-ui:${springfoxSwaggerVersion}"
 	implementation 'org.codehaus.groovy:groovy'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testImplementation "org.spockframework:spock-core:${spockVersion}"

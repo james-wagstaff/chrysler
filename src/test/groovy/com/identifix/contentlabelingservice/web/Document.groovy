@@ -11,6 +11,7 @@ class Document {
     String linkToPage
     String nuxeoId
 
+    @SuppressWarnings('ParameterCount')
     Document(String label, String title, String tocpath, String category, String linkToPage, String nuxeoId) {
         this.label = label
         this.title = title
