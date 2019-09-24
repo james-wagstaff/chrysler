@@ -5,6 +5,8 @@ import com.identifix.contentlabelingservice.service.LabelService
 import io.swagger.annotations.Api
 import io.swagger.annotations.ApiOperation
 import io.swagger.annotations.ApiParam
+import io.swagger.annotations.ApiResponse
+import io.swagger.annotations.ApiResponses
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -21,9 +23,16 @@ class LabelController {
     LabelService labelService
 
     @ApiOperation(value = "Creates a label using the base rules.")
+    @ApiResponses(value = [
+            @ApiResponse(code = 200, message = "Successfully found a label"),
+            @ApiResponse(code = 204, message = "Response was Successful, but no label found"),
+            @ApiResponse(code = 400, message = "Invalid RequestBody"),
+            @ApiResponse(code = 503, message = "BitBucket network issue")
+    ])
     @PostMapping('/label')
     ResponseEntity createLabel(@ApiParam(value = "All values needed to create a label using base rules.", required = true)
                                @Valid @RequestBody LabelRequest labelRequest) {
-        new ResponseEntity(labelService.createLabel(labelRequest), HttpStatus.OK)
+        String label  = labelService.createLabel(labelRequest)
+        new ResponseEntity(label, label.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK)
     }
 }

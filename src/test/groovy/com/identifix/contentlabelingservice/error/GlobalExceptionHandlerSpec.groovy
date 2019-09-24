@@ -21,4 +21,13 @@ class GlobalExceptionHandlerSpec extends Specification {
             responseEntity.statusCode == status
             ((responseEntity.body as LinkedHashMap).get("errors") as ArrayList<String>).get(0).equalsIgnoreCase("test")
     }
+
+    def "BitBucketNetworkException is thrown" () {
+        GlobalExceptionHandler globalExceptionHandler = new GlobalExceptionHandler()
+        when:
+            ResponseEntity responseEntity = globalExceptionHandler.bitBucketNetworkException(new BitBucketNetworkException("test"))
+        then:
+            responseEntity.statusCode == HttpStatus.SERVICE_UNAVAILABLE
+            ((responseEntity.body as LinkedHashMap).get("errors") as ArrayList<String>).get(0).equalsIgnoreCase("test")
+    }
 }

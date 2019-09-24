@@ -22,7 +22,7 @@ class LabelService {
         List<BaseRule> baseRules = baseRulesComponent.getBaseRules(request.publisher, request.manualType)
         String label = baseRules.find {
             (it.type == BaseRuleType.PAGE ? request.title : request.tocPath) =~ buildRegex(it.regexWords)
-        }?.rule ?: "Not Found"
+        }?.rule ?: ""
 
         log.info("Label for ${request.toString()} is $label")
         label
