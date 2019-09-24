@@ -66,7 +66,7 @@ class LabelServiceSpec extends Specification {
         when: 'getting label'
         String label = service.createLabel(request)
         then:
-        label == "Not Found"
+        label == ""
         1 * baseRulesComponent.getBaseRules(request.publisher, request.manualType) >> baseRules
     }
 

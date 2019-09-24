@@ -1,5 +1,6 @@
 package com.identifix.contentlabelingservice.service
 
+import com.identifix.contentlabelingservice.error.BitBucketNetworkException
 import com.identifix.contentlabelingservice.model.BaseRule
 import com.identifix.contentlabelingservice.model.BaseRuleType
 import groovy.util.logging.Slf4j
@@ -57,7 +58,14 @@ class BaseRulesComponent {
     @SuppressWarnings("GrMethodMayBeStatic")
     String getBaseRulesFromRepository(String publisher, String manualType) {
         log.info("Calling Bitbucket for $publisher, $manualType")
-        new RestTemplate().getForObject("$baseRulesBaseUrl/raw/${publisher.toLowerCase()}/${manualType.toLowerCase()}_base_rules.csv", String)
+        String baseRules = new RestTemplate().getForObject("$baseRulesBaseUrl/raw/${publisher.toLowerCase()}/${manualType.toLowerCase()}_base_rules.csv", String)
+
+        if (baseRules.contains("<title>Sign in to your account</title>")) {
+            log.error("Error accessing Bitbucket for $publisher, $manualType. The serivce is on the wrong network! Please select a new network and restart the service!")
+            throw new BitBucketNetworkException("Network issues with BitBucket")
+        }
+
+        baseRules
     }
 
     @CacheEvict(cacheNames = "BaseRules")

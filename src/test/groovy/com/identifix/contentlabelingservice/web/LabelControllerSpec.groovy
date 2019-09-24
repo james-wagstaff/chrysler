@@ -3,6 +3,8 @@ package com.identifix.contentlabelingservice.web
 import com.identifix.contentlabelingservice.model.LabelRequest
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import spock.lang.Specification
 
 @SpringBootTest
@@ -21,7 +23,8 @@ class LabelControllerSpec extends Specification {
                 request.manualType = document.category
                 request.title = document.title
                 request.tocPath = document.tocpath
-                document.label = controller.createLabel(request).body.toString()
+                ResponseEntity responseEntity = controller.createLabel(request)
+                document.label = responseEntity.statusCode == HttpStatus.OK ? responseEntity.body.toString() : "Not Found"
 
                 labelSpreadsheet.append("${document.label},${document.title},${document.tocpath},${document.category},${document.linkToPage},${document.nuxeoId}\r\n")
             }

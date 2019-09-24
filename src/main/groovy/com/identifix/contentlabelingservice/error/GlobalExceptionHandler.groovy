@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
+import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 
@@ -17,12 +18,20 @@ class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                                   HttpStatus status, WebRequest request) {
         List<String> errors = []
         ex.bindingResult.fieldErrors.each { errors.add(it.defaultMessage) }
+        new ResponseEntity<>(error(status.value(), errors), headers, status)
+    }
 
+    @ExceptionHandler(BitBucketNetworkException)
+    ResponseEntity bitBucketNetworkException(final BitBucketNetworkException e) {
+        List<String> errors = [e.message]
+        new ResponseEntity(error(HttpStatus.SERVICE_UNAVAILABLE.value(), errors), HttpStatus.SERVICE_UNAVAILABLE)
+    }
+
+    private static Map<String, Object> error(int status, List<String> errors) {
         Map<String, Object> body = [:]
         body.put("timestamp", new Date())
-        body.put("status", status.value())
+        body.put("status", status)
         body.put("errors", errors)
-
-        new ResponseEntity<>(body, headers, status)
+        body
     }
 }
