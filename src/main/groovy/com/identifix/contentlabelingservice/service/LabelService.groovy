@@ -1,6 +1,5 @@
 package com.identifix.contentlabelingservice.service
 
-import com.identifix.contentlabelingservice.model.BaseRule
 import com.identifix.contentlabelingservice.model.BaseRuleType
 import com.identifix.contentlabelingservice.model.LabelRequest
 import groovy.util.logging.Slf4j
@@ -19,12 +18,12 @@ class LabelService {
             baseRulesComponent.evictBaseRuleFromCache(request.publisher, request.manualType)
         }
 
-        List<BaseRule> baseRules = baseRulesComponent.getBaseRules(request.publisher, request.manualType)
-        String label = baseRules.find {
-            (it.type == BaseRuleType.PAGE ? request.title : request.tocPath) =~ buildRegex(it.regexWords)
+        String label = baseRulesComponent.getBaseRules(request.publisher, request.manualType).find {
+            (it.type == BaseRuleType.PAGE ? request.title : request.header) ==~ buildRegex(it.regexWords)
         }?.rule ?: ""
 
-        log.info("Label for ${request.toString()} is $label")
+        log.info("Label for ${request.toString()} is : ${label}")
+
         label
     }
 

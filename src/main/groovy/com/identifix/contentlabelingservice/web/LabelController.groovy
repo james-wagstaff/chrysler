@@ -33,6 +33,6 @@ class LabelController {
     ResponseEntity createLabel(@ApiParam(value = "All values needed to create a label using base rules.", required = true)
                                @Valid @RequestBody LabelRequest labelRequest) {
         String label  = labelService.createLabel(labelRequest)
-        new ResponseEntity(label, label.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK)
+        new ResponseEntity(label, label == "" ? HttpStatus.NO_CONTENT : HttpStatus.OK)
     }
 }
