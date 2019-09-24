@@ -1,0 +1,283 @@
+---
+jobs:
+  - name: build
+    public: true
+    serial_groups: [version]
+    plan:
+      - aggregate:
+          - get: app-repo
+            trigger: true
+          - get: version
+            params: { pre: RC }
+          - get: concourse-ci-repo
+      - put: version
+        params: { file: version/version }
+      - task: gradle-build
+        file: concourse-ci-repo/ci/tasks/gradle-build.yml
+        on_failure:
+          put: reports
+      - put: nexus-rc
+        params:
+          file: release/((content-labeling-service.app_name)).jar
+          version_file: version/version
+
+  - name: sonarqube
+    public: true
+    plan:
+      - aggregate:
+          - get: app-repo
+            trigger: true
+            passed: [build]
+          - get: concourse-ci-repo
+          - get: version
+      - task: gradle-sonarqube
+        file: concourse-ci-repo/ci/tasks/gradle-sonarqube.yml
+        params:
+          SONARQUBE_URL: ((sonarqube.url))
+          SONARQUBE_TOKEN: ((sonarqube.token))
+          SONARQUBE_PROJECT: ((sonarqube.tribe)):((sonarqube.group)):((content-labeling-service.app_name))
+
+  - name: deploy-to-dev
+    serial: true
+    serial_groups: [version]
+    plan:
+      - aggregate:
+          - get: nexus-rc
+            trigger: true
+            passed: [build]
+          - get: version
+            passed: [build]
+          - get: concourse-ci-repo
+      - task: generate-manifest
+        file: concourse-ci-repo/ci/tasks/generate-manifest.yml
+        params:
+          MF_NAME: ((content-labeling-service.app_name))
+          MF_BUILDPACK: ((content-labeling-service.buildpack))
+          MF_ROUTES: [ route: ((content-labeling-service.app_name))-dev.((pcf-dev-environment.app_domain)) ]
+          MF_SERVICES: [ ((splunk.service_name)), ((config-server.name)) ]
+          MF_TIMEOUT: ((content-labeling-service-dev.timeout))
+          MF_MEMORY: ((content-labeling-service-dev.memory))
+          MF_INSTANCES: ((content-labeling-service-dev.instances))
+          MF_DISK_QUOTA: ((content-labeling-service-dev.disk_quota))
+          MF_HEALTH_CHECK_TYPE: ((content-labeling-service.health_check_type))
+          MF_HEALTH_CHECK_HTTP_ENDPOINT: ((content-labeling-service.health_check_endpoint))
+          MF_ENV:
+            SPRING_PROFILES_ACTIVE: dev
+      - put: cf-deploy-to-dev
+        resource: cf-env
+        params:
+          space: ((pcf-dev-environment.space))
+          command: push
+          manifest: task-output/manifest.yml
+          path: nexus-rc/((content-labeling-service.app_name))-*.jar
+      - task: set-health-check
+        file: concourse-ci-repo/ci/tasks/set-health-check.yml
+        params:
+          HC_APP: ((content-labeling-service.app_name))
+          HC_HTTP_ENDPOINT: ((content-labeling-service.health_check_endpoint))
+          HC_TIMEOUT: ((content-labeling-service.health_check_timeout))
+          HC_TYPE: ((content-labeling-service.health_check_type))
+          PWS_API: ((pcf-dev-environment.api))
+          PWS_ORG: ((pcf-dev-environment.organization))
+          PWS_PWD: ((pcf-dev-environment.password))
+          PWS_SPACE: ((pcf-dev-environment.space))
+          PWS_USER: ((pcf-dev-environment.username))
+
+  - name: deploy-to-qa
+    serial: true
+    serial_groups: [version]
+    plan:
+      - aggregate:
+          - get: nexus-rc
+            trigger: true
+            passed: [deploy-to-dev]
+          - get: version
+            passed: [deploy-to-dev]
+          - get: concourse-ci-repo
+      - task: get-current-app-color
+        file: concourse-ci-repo/ci/tasks/get-current-blue-green-info.yml
+        params:
+          PWS_APP_NAME: ((content-labeling-service.app_name))
+          PWS_APP_SUFFIX: qa
+          PWS_API: ((pcf-qa-environment.api))
+          PWS_ORG: ((pcf-qa-environment.organization))
+          PWS_USER: ((pcf-qa-environment.username))
+          PWS_PWD: ((pcf-qa-environment.password))
+          PWS_SPACE: ((pcf-qa-environment.space))
+      - task: generate-manifest
+        file: concourse-ci-repo/ci/tasks/generate-manifest-blue-green.yml
+        params:
+          MF_NAME: ((content-labeling-service.app_name))
+          MF_BUILDPACK: ((content-labeling-service.buildpack))
+          MF_SERVICES: [ ((splunk.service_name)), ((config-server.name)) ]
+          MF_TIMEOUT: ((content-labeling-service-qa.timeout))
+          MF_MEMORY: ((content-labeling-service-qa.memory))
+          MF_INSTANCES: ((content-labeling-service-qa.instances))
+          MF_DISK_QUOTA: ((content-labeling-service-qa.disk_quota))
+          MF_HEALTH_CHECK_TYPE: ((content-labeling-service.health_check_type))
+          MF_HEALTH_CHECK_HTTP_ENDPOINT: ((content-labeling-service.health_check_endpoint))
+          MF_ENV:
+            SPRING_PROFILES_ACTIVE: qa
+      - put: cf-deploy-to-qa
+        resource: cf-env
+        params:
+          space: ((pcf-qa-environment.space))
+          command: push
+          manifest: task-output/manifest.yml
+          path: nexus-rc/((content-labeling-service.app_name))-*.jar
+      - task: set-health-check
+        file: concourse-ci-repo/ci/tasks/set-health-check-blue-green.yml
+        params:
+          HC_APP: ((content-labeling-service.app_name))
+          HC_HTTP_ENDPOINT: ((content-labeling-service.health_check_endpoint))
+          HC_TIMEOUT: ((content-labeling-service.health_check_timeout))
+          HC_TYPE: ((content-labeling-service.health_check_type))
+          PWS_API: ((pcf-qa-environment.api))
+          PWS_ORG: ((pcf-qa-environment.organization))
+          PWS_PWD: ((pcf-qa-environment.password))
+          PWS_SPACE: ((pcf-qa-environment.space))
+          PWS_USER: ((pcf-qa-environment.username))
+
+  - name: toggle-inactive-active
+    serial: true
+    plan:
+      - aggregate:
+          - get: nexus-rc
+            trigger: true
+            passed: [deploy-to-qa]
+          - get: concourse-ci-repo
+      - task: blue-green-update-routes-stop-inactive
+        file: concourse-ci-repo/ci/tasks/blue-green-update-routes-stop-inactive.yml
+        params:
+          PWS_APP_NAME: ((content-labeling-service.app_name))
+          PWS_APP_SUFFIX: qa
+          PWS_APP_DOMAIN: ((pcf-qa-environment.app_domain))
+          PWS_API: ((pcf-qa-environment.api))
+          PWS_ORG: ((pcf-qa-environment.organization))
+          PWS_USER: ((pcf-qa-environment.username))
+          PWS_PWD: ((pcf-qa-environment.password))
+          PWS_SPACE: ((pcf-qa-environment.space))
+
+  - name: shipit
+    public: true
+    serial_groups: [version]
+    plan:
+      - aggregate:
+          - get: nexus-rc
+            trigger: true
+            passed: [deploy-to-qa]
+          - get: version
+            passed: [deploy-to-qa]
+            params: { bump: final }
+      - put: version
+        params: { file: version/version }
+      - put: nexus-release
+        params:
+          file: nexus-rc/((content-labeling-service.app_name))-*.jar
+          version_file: version/version
+
+  - name: major
+    public: true
+    serial_groups: [version]
+    plan:
+      - get: version
+        params: {bump: major, pre: RC}
+      - put: version
+        params: {file: version/version}
+
+  - name: minor
+    public: true
+    serial_groups: [version]
+    plan:
+      - get: version
+        params: {bump: minor, pre: RC}
+      - put: version
+        params: {file: version/version}
+
+  - name: patch
+    public: true
+    serial_groups: [version]
+    plan:
+      - get: version
+        passed: [shipit]
+        params: {bump: patch, pre: RC}
+        trigger: true
+      - put: version
+        params: {file: version/version}
+
+resource_types:
+  - name: maven-resource
+    type: docker-image
+    source:
+      repository: patrickcrocker/maven-resource
+      tag: latest
+  - name: s3-sync
+    type: docker-image
+    source:
+      repository: 18fgsa/s3-resource-simple
+  - name: cf-cli-resource
+    type: docker-image
+    source:
+      repository: nulldriver/cf-cli-resource
+      tag: latest
+
+resources:
+  - name: app-repo
+    type: git
+    check_every: 5m
+    source:
+      uri: ((git-repo.uri))/((content-labeling-service.app_name)).git
+      branch: master
+      private_key: ((git-repo.ssh_key))
+  - name: concourse-ci-repo
+    type: git
+    check_every: 5m
+    source:
+      uri: ((git-repo.uri))/concourse-ci.git
+      branch: master
+      tag_filter: 0.0.44
+      private_key: ((git-repo.ssh_key))
+  - name: nexus-rc
+    type: maven-resource
+    source:
+      url: ((artifact-repo.rc_url))
+      artifact: com.identifix:((content-labeling-service.app_name)):jar
+      skip_cert_check: true
+      username: ((artifact-repo.username))
+      password: ((artifact-repo.password))
+  - name: nexus-release
+    type: maven-resource
+    source:
+      url: ((artifact-repo.url))
+      artifact: com.identifix:((content-labeling-service.app_name)):jar
+      skip_cert_check: true
+      username: ((artifact-repo.username))
+      password: ((artifact-repo.password))
+  - name: version
+    type: semver
+    source:
+      driver: git
+      initial_version: 0.0.1-RC.0
+      uri: ((git-repo.uri))/((content-labeling-service.app_name)).git
+      branch: version
+      file: version
+      private_key: ((git-repo.ssh_key))
+  - name: cf-env
+    type: cf-cli-resource
+    source:
+      api: ((pcf-dev-environment.api))
+      username: ((pcf-dev-environment.username))
+      password: ((pcf-dev-environment.password))
+      org: ((pcf-dev-environment.organization))
+      skip_cert_check: true
+  - name: reports
+    type: s3-sync
+    source:
+      bucket: concourse
+      path: ((content-labeling-service.app_name))
+      access_key_id: ((s3-connection.access_key))
+      secret_access_key: ((s3-connection.secret_key))
+      options:
+        - "--endpoint-url=((s3-connection.endpoint))"
+        - "--exclude '*'"
+        - "--include 'reports/*'"
