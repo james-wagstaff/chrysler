@@ -1,3 +1,16 @@
 server:
   servlet:
       context-path: /api
+
+logging:
+  level:
+    org:
+      springframework:
+        cache: TRACE
+
+spring:
+  cache:
+    caffeine:
+      spec: expireAfterWrite=7d
+
+baseRulesBaseUrl: https://bitbucket.audatex.com/projects/GSRMRA/repos/oem_base_rules

@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 
+import javax.validation.Valid
+
 @RestController()
 @Api(value="Labeling Services", description="Operations to apply a label to a given document.")
 class LabelController {
@@ -21,7 +23,7 @@ class LabelController {
     @ApiOperation(value = "Creates a label using the base rules.")
     @PostMapping('/label')
     ResponseEntity createLabel(@ApiParam(value = "All values needed to create a label using base rules.", required = true)
-                               @RequestBody LabelRequest labelRequest) {
+                               @Valid @RequestBody LabelRequest labelRequest) {
         new ResponseEntity(labelService.createLabel(labelRequest), HttpStatus.OK)
     }
 }
