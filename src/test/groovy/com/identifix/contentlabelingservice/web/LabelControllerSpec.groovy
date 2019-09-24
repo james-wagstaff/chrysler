@@ -8,15 +8,20 @@ import org.springframework.http.ResponseEntity
 import spock.lang.Specification
 
 @SpringBootTest
+@SuppressWarnings("Println")
 class LabelControllerSpec extends Specification {
     @Autowired
     LabelController controller
 
     def 'Apply labels to spreadsheet functional test' () {
         when:
+            int totalDocs = 0
+            int totalLabelsFound = 0
+
             StringBuilder labelSpreadsheet = new StringBuilder("Label,title,tocpath,category,linkToPage,nuxeoId\r\n")
             String originalCSV = new File("src/test/resources/documentTable.csv").text
             originalCSV.split("\\r?\\n").drop(1).each {
+                totalDocs++
                 Document document = createDocument(it)
                 LabelRequest request = new LabelRequest()
                 request.publisher = "Ford"
@@ -26,8 +31,14 @@ class LabelControllerSpec extends Specification {
                 ResponseEntity responseEntity = controller.createLabel(request)
                 document.label = responseEntity.statusCode == HttpStatus.OK ? responseEntity.body.toString() : "Not Found"
 
+                if (responseEntity.statusCode == HttpStatus.OK) {
+                    totalLabelsFound++
+                }
+
                 labelSpreadsheet.append("${document.label},${document.title},${document.tocpath},${document.category},${document.linkToPage},${document.nuxeoId}\r\n")
             }
+
+            println ("${((totalLabelsFound / totalDocs) * 100).round(2)} % labeled")
 
             File file = new File("src/test/resources/documentTable_finished.csv")
             PrintWriter writer = new PrintWriter(file)
