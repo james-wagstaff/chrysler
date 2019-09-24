@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Component
+import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.client.RestTemplate
 
 @Component
@@ -58,11 +60,17 @@ class BaseRulesComponent {
     @SuppressWarnings("GrMethodMayBeStatic")
     String getBaseRulesFromRepository(String publisher, String manualType) {
         log.info("Calling Bitbucket for $publisher, $manualType")
-        String baseRules = new RestTemplate().getForObject("$baseRulesBaseUrl/raw/${publisher.toLowerCase()}/${manualType.toLowerCase()}_base_rules.csv", String)
+        String baseRules
+        try {
+            baseRules = new RestTemplate().getForObject("$baseRulesBaseUrl/raw/${publisher.toLowerCase()}/${manualType.toLowerCase()}_base_rules.csv", String)
 
-        if (baseRules.contains("<title>Sign in to your account</title>")) {
-            log.error("Error accessing Bitbucket for $publisher, $manualType. The serivce is on the wrong network! Please select a new network and restart the service!")
-            throw new BitBucketNetworkException("Network issues with BitBucket")
+            if (baseRules.contains("<title>Sign in to your account</title>")) {
+                log.error("Error accessing Bitbucket for $publisher, $manualType. The serivce is on the wrong network! Please select a new network and restart the service!")
+                throw new BitBucketNetworkException("Network issues with BitBucket")
+            }
+        } catch (HttpClientErrorException | ResourceAccessException e) {
+            log.error("Error accessing Bitbucket for $publisher, $manualType. ${e.message}")
+            throw new BitBucketNetworkException("Error occurred while trying to access Bitbucket for $publisher, $manualType.")
         }
 
         baseRules
