@@ -18,14 +18,14 @@ class LabelRequest {
     @NotNull(message = "manualType must not be null")
     @NotEmpty(message = "manualType must not be empty")
     String manualType
-    @ApiModelProperty(example = "Removal and Installation: Axle Assembly - (Front Drive Axle/Differential)")
+    @ApiModelProperty(example = "Axle Assembly")
     @NotNull(message = "title must not be null")
     @NotEmpty(message = "title must not be empty")
     String title
-    @ApiModelProperty(example = "\"[113 > 2: Chassis > 05: Driveline > 205-03 Front Drive Axle/Differential > Removal and Installation > Axle Assembly]\"")
-    @NotNull(message = "tocPath must not be null")
-    @NotEmpty(message = "tocPath must not be empty")
-    String tocPath
+    @ApiModelProperty(example = "Removal and Installation")
+    @NotNull(message = "header must not be null")
+    @NotEmpty(message = "header must not be empty")
+    String header
     @ApiModelProperty(example = "false")
     boolean refresh
 }

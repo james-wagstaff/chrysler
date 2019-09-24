@@ -30,10 +30,10 @@ class LabelServiceSpec extends Specification {
 
     def 'Call label service for found label for page'() {
         LabelRequest request = new LabelRequest()
-        request.setTitle("test")
-        request.setTocPath("test")
-        request.setManualType("workshop")
-        request.setPublisher("ford")
+            request.title = "test"
+            request.header = "test"
+            request.manualType = "workshop"
+            request.publisher = "ford"
 
         when: 'getting label'
             String label = service.createLabel(request)
@@ -44,45 +44,45 @@ class LabelServiceSpec extends Specification {
 
     def 'Call label service for found label for header'() {
         LabelRequest request = new LabelRequest()
-        request.setTitle("tester")
-        request.setTocPath("tester")
-        request.setManualType("workshop")
-        request.setPublisher("ford")
+            request.title = "tester"
+            request.header = "tester"
+            request.manualType = "workshop"
+            request.publisher = "ford"
 
         when: 'getting label'
             String label = service.createLabel(request)
         then:
             label == "tester"
-        1 * baseRulesComponent.getBaseRules(request.publisher, request.manualType) >> baseRules
+            1 * baseRulesComponent.getBaseRules(request.publisher, request.manualType) >> baseRules
     }
 
     def 'Call label service for not found label'() {
         LabelRequest request = new LabelRequest()
-        request.setTitle("fail")
-        request.setTocPath("fail")
-        request.setManualType("workshop")
-        request.setPublisher("ford")
+            request.title = "fail"
+            request.header = "fail"
+            request.manualType = "workshop"
+            request.publisher = "ford"
 
         when: 'getting label'
-        String label = service.createLabel(request)
+            String label = service.createLabel(request)
         then:
-        label == ""
-        1 * baseRulesComponent.getBaseRules(request.publisher, request.manualType) >> baseRules
+            label == ""
+            1 * baseRulesComponent.getBaseRules(request.publisher, request.manualType) >> baseRules
     }
 
     def 'Call label service with refresh'() {
         LabelRequest request = new LabelRequest()
-        request.setTitle("tester")
-        request.setTocPath("tester")
-        request.setManualType("workshop")
-        request.setPublisher("ford")
-        request.setRefresh(true)
+            request.title = "tester"
+            request.header = "tester"
+            request.manualType = "workshop"
+            request.publisher = "ford"
+            request.setRefresh(true)
 
         when: 'getting label'
-        String label = service.createLabel(request)
+            String label = service.createLabel(request)
         then:
-        label == "tester"
-        1 * baseRulesComponent.evictBaseRuleFromCache(request.publisher, request.manualType)
-        1 * baseRulesComponent.getBaseRules(request.publisher, request.manualType) >> baseRules
+            label == "tester"
+            1 * baseRulesComponent.evictBaseRuleFromCache(request.publisher, request.manualType)
+            1 * baseRulesComponent.getBaseRules(request.publisher, request.manualType) >> baseRules
     }
 }
