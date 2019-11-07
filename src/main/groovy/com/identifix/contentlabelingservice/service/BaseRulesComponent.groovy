@@ -32,7 +32,7 @@ class BaseRulesComponent {
     List<BaseRule> getBaseRules(String publisher, String manualType) {
         String baseRulesWhole =  getBaseRulesFromRepository(publisher, manualType)
         Map<String, BaseRule> baseRulesMap = [:]
-        baseRulesWhole.split(CSV_LINE_BREAK).each {
+        baseRulesWhole?.split(CSV_LINE_BREAK).each {
             String[] baseRuleValues = it.split(CSV_COMMA_BREAK)
             if (baseRuleValues.size() >= CSV_BASE_COLUMN_SIZE &&
                     !baseRulesMap.containsKey(baseRuleValues[CSV_INDEX_REGEX_WORDS])) {
@@ -64,7 +64,7 @@ class BaseRulesComponent {
         try {
             baseRules = new RestTemplate().getForObject("$baseRulesBaseUrl/raw/${publisher.toLowerCase()}/${manualType.toLowerCase()}_base_rules.csv", String)
 
-            if (baseRules.contains("<title>Sign in to your account</title>")) {
+            if (baseRules?.contains("<title>Sign in to your account</title>")) {
                 log.error("Error accessing Bitbucket for $publisher, $manualType. The serivce is on the wrong network! Please select a new network and restart the service!")
                 throw new BitBucketNetworkException("Network issues with BitBucket")
             }
