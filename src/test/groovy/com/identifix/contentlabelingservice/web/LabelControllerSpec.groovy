@@ -87,7 +87,6 @@ class LabelControllerSpec extends Specification {
         true
     }
 
-
     @SuppressWarnings('FactoryMethodName')
     private static Document createDocument(String docValues) {
         String[] docValueArray = docValues.split(",")
