@@ -65,7 +65,7 @@
 ////            LabelRequest request = new LabelRequest()
 ////            request.publisher = "Ford"
 ////            request.manualType = "Workshop" //document.category
-////            request.title = document.tocpath.replaceAll("\\[", "").replaceAll("]", "").split(" > ")[5]
+////            request.title = document.tocpath.replaceAll("\\[", "").replaceAll("]", "").split(" > ").last()
 ////            request.header = document.tocpath.replaceAll("\\[", "").replaceAll("]", "").split(" > ")[4]
 ////            ResponseEntity responseEntity = controller.createLabel(request)
 ////            document.label = responseEntity.statusCode == HttpStatus.OK ? responseEntity.body.toString() : "Not Found"
