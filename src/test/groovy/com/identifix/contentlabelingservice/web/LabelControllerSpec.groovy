@@ -129,6 +129,27 @@
 ////    @SuppressWarnings('FactoryMethodName')
 ////    private static Document createDocument(String docValues) {
 ////        String[] docValueArray = docValues.split(",")
-////        new Document(docValueArray[0], docValueArray[1], docValueArray[2], docValueArray[3], docValueArray[4], docValueArray[5])
+////        if (docValueArray.size() == 7) {
+////            new Document(docValueArray[0], docValueArray[1], docValueArray[2], docValueArray[3], docValueArray[4] + docValueArray[5], docValueArray[6])
+////        } else {
+////            new Document(docValueArray[0], docValueArray[1], docValueArray[2], docValueArray[3], docValueArray[4], docValueArray[5])
+////        }
 ////    }
+////
+////    def 'handles extra comma in URL string'() {
+////        given:
+////        String extraCommaIn = ",Parking Rear And License Lamps (092-1),[092 > Parking Rear and License Lamps > 1],Wiring,\"www.fordtechservice.dealerconnection.com/renderers/wiring/svg/https://www.fordtechservice.dealerconnection.com/wiring/page/?book=EJY&vehicleId=6320&vin=&cell=092&page=1&sortby=&country=US&bookType=svg&language=EN&title=Parking,%20Rear%20and%20License%20Lamps\",ace55ddd-fca5-3b95-aa30-7ac36db88189"
+////        String extraCommaOut = "com.identifix.contentlabelingservice.web.Document(, Parking Rear And License Lamps (092-1), [092 > Parking Rear and License Lamps > 1], Wiring, \"www.fordtechservice.dealerconnection.com/renderers/wiring/svg/https://www.fordtechservice.dealerconnection.com/wiring/page/?book=EJY&vehicleId=6320&vin=&cell=092&page=1&sortby=&country=US&bookType=svg&language=EN&title=Parking%20Rear%20and%20License%20Lamps\", ace55ddd-fca5-3b95-aa30-7ac36db88189)"
+////        expect:
+////        createDocument(extraCommaIn).toString() == extraCommaOut
+////    }
+////
+////    def 'handles normal table row string'() {
+////        given:
+////        String normalTableRowIn = ",Reversing Lamps (093-1),[093 > Reversing Lamps > 1],Wiring,\"www.fordtechservice.dealerconnection.com/renderers/wiring/svg/https://www.fordtechservice.dealerconnection.com/wiring/page/?book=EJY&vehicleId=6320&vin=&cell=093&page=1&sortby=&country=US&bookType=svg&language=EN&title=Reversing%20Lamps\",c931256f-ba5b-3227-abd8-f7ec97100ee2"
+////        String normalTableRowOut = "com.identifix.contentlabelingservice.web.Document(, Reversing Lamps (093-1), [093 > Reversing Lamps > 1], Wiring, \"www.fordtechservice.dealerconnection.com/renderers/wiring/svg/https://www.fordtechservice.dealerconnection.com/wiring/page/?book=EJY&vehicleId=6320&vin=&cell=093&page=1&sortby=&country=US&bookType=svg&language=EN&title=Reversing%20Lamps\", c931256f-ba5b-3227-abd8-f7ec97100ee2)"
+////        expect:
+////        createDocument(normalTableRowIn).toString() == normalTableRowOut
+////    }
+//
 //}
