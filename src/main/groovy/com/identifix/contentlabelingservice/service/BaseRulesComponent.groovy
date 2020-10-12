@@ -4,6 +4,7 @@ import com.identifix.contentlabelingservice.error.BitBucketNetworkException
 import com.identifix.contentlabelingservice.model.BaseRule
 import com.identifix.contentlabelingservice.model.BaseRuleType
 import groovy.util.logging.Slf4j
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
@@ -27,10 +28,13 @@ class BaseRulesComponent {
     @Value('${baseRulesBaseUrl}')
     String baseRulesBaseUrl
 
+    @Autowired
+    GitService gitService
+
     @Cacheable(cacheNames = "BaseRules")
     @SuppressWarnings("GrMethodMayBeStatic")
     List<BaseRule> getBaseRules(String publisher, String manualType) {
-        String baseRulesWhole =  getBaseRulesFromRepository(publisher, manualType)
+        String baseRulesWhole =  gitService.getBaseRules(publisher, manualType)
         Map<String, BaseRule> baseRulesMap = [:]
         baseRulesWhole?.split(CSV_LINE_BREAK).each {
             String[] baseRuleValues = it.split(CSV_COMMA_BREAK)
@@ -55,25 +59,6 @@ class BaseRulesComponent {
         baseRule.setRule(baseRuleValues[CSV_INDEX_RULE])
 
         baseRule
-    }
-
-    @SuppressWarnings("GrMethodMayBeStatic")
-    String getBaseRulesFromRepository(String publisher, String manualType) {
-        log.info("Calling Bitbucket for $publisher, $manualType")
-        String baseRules
-        try {
-            baseRules = new RestTemplate().getForObject("$baseRulesBaseUrl/raw/${publisher.toLowerCase()}/${manualType.toLowerCase()}_base_rules.csv", String)
-
-            if (baseRules?.contains("<title>Sign in to your account</title>")) {
-                log.error("Error accessing Bitbucket for $publisher, $manualType. The serivce is on the wrong network! Please select a new network and restart the service!")
-                throw new BitBucketNetworkException("Network issues with BitBucket")
-            }
-        } catch (HttpClientErrorException | ResourceAccessException e) {
-            log.error("Error accessing Bitbucket for $publisher, $manualType. ${e.message}")
-            throw new BitBucketNetworkException("Error occurred while trying to access Bitbucket for $publisher, $manualType.")
-        }
-
-        baseRules
     }
 
     @CacheEvict(cacheNames = "BaseRules")
