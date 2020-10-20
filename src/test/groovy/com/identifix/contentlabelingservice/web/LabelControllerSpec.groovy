@@ -9,7 +9,7 @@
 //
 ////  NOTE: Copy and paste the results from kraken-client buildCsvFile into documentTable.csv (input file)
 //// uncomment the appropriate test method below, run that test, outputs to documentTable_finished.csv
-//@SpringBootTest
+//@SpringBootTest('properties = "spring.cloud.config.enabled=true"')
 //@SuppressWarnings("Println")
 //class LabelControllerSpec extends Specification {
 //    @Autowired
