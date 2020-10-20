@@ -1,17 +1,12 @@
 package com.identifix.contentlabelingservice.service
 
-import com.identifix.contentlabelingservice.error.BitBucketNetworkException
 import com.identifix.contentlabelingservice.model.BaseRule
 import com.identifix.contentlabelingservice.model.BaseRuleType
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Component
-import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.ResourceAccessException
-import org.springframework.web.client.RestTemplate
 
 @Component
 @Slf4j
@@ -24,10 +19,6 @@ class BaseRulesComponent {
     private static final int CSV_INDEX_HEADER = 2
     private static final int CSV_BASE_COLUMN_SIZE = 2
     private static final int CSV_EXTRA_COLUMN_SIZE = 3
-
-    @Value('${baseRulesBaseUrl}')
-    String baseRulesBaseUrl
-
     @Autowired
     GitService gitService
 

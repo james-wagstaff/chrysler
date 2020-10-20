@@ -5,11 +5,11 @@ import org.springframework.stereotype.Component
 
 @Component
 class LabelingServiceConfig {
-    @Value('${content-labeling-service.repo-user-name:michael.moseng@identifix.com}')
+    @Value('${content-labeling-service.repo-user-name}')
     String repoUsername
-    @Value('${content-labeling-service.repo-auth-value:Nzk1NjI1ODQyMTU4Osvw7mOICz0K3mdccZFyU/1s2Fx7}')
+    @Value('${content-labeling-service.repo-auth-value}')
     String repoAuthValue
-    @Value('${content-labeling-service.repo-url:https://bitbucket.audatex.com/scm/srmic/oem-base-rules.git}')
+    @Value('${content-labeling-service.repo-url}')
     String repoUrl
     String gitDir = 'repo'
 }

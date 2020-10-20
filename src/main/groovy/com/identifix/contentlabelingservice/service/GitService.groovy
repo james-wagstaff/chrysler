@@ -17,16 +17,18 @@ class GitService {
 
     String getBaseRules(String publisher, String manualType) {
         updateRepo()
-        File file = new File("${labelingServiceConfig.gitDir}/${publisher.toLowerCase()}/${manualType.toLowerCase()}_base_rules.csv")
-        if (!file.exists()) {
+        try {
+            File file = new File("${labelingServiceConfig.gitDir}/${publisher.toLowerCase()}/${manualType.toLowerCase()}_base_rules.csv")
+            file.text
+        } catch (FileNotFoundException e) {
+            log.error(e.message)
             ''
         }
-        file.text
     }
 
     void updateRepo() {
         File gitDir = new File(labelingServiceConfig.gitDir)
-        CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(labelingServiceConfig.repoUsername,labelingServiceConfig.repoAuthValue)
+        CredentialsProvider credentialsProvider = new UsernamePasswordCredentialsProvider(labelingServiceConfig.repoUsername, labelingServiceConfig.repoAuthValue)
         if (gitDir.exists()) {
             log.info('Repo detected')
             Git git = Git.open(gitDir)
