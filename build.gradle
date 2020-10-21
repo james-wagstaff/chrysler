@@ -16,6 +16,10 @@ buildscript {
 	}
 }
 
+plugins {
+	id 'com.palantir.docker' version '0.22.1'
+}
+
 apply plugin: 'groovy'
 apply plugin: 'idea'
 apply plugin: 'application'
