@@ -4,7 +4,7 @@ jobs:
     public: true
     serial_groups: [version]
     plan:
-      - aggregate:
+      - in_parallel:
           - get: app-repo
             trigger: true
           - get: version
@@ -21,10 +21,31 @@ jobs:
           file: release/((content-labeling-service.app_name)).jar
           version_file: version/version
 
+  - name: build-docker
+    serial: true
+    serial_groups: [version]
+    plan:
+      - in_parallel:
+          - get: app-repo
+            passed: [build]
+          - get: nexus-rc
+            trigger: true
+            passed: [build]
+          - get: version
+            passed: [build]
+      - put: docker-image-repo-rc
+        params:
+          build: .
+          dockerfile: app-repo/Dockerfile
+          tag: version/version
+          tag_as_latest: true
+          build_args:
+            JAR_FILE: nexus-rc/((content-labeling-service.app_name))-*.jar
+
   - name: sonarqube
     public: true
     plan:
-      - aggregate:
+      - in_parallel:
           - get: app-repo
             trigger: true
             passed: [build]
@@ -41,20 +62,20 @@ jobs:
     serial: true
     serial_groups: [version]
     plan:
-      - aggregate:
-          - get: nexus-rc
+      - in_parallel:
+          - get: docker-image-repo-rc
             trigger: true
-            passed: [build]
+            passed: [build-docker]
           - get: version
-            passed: [build]
+            passed: [build-docker]
           - get: concourse-ci-repo
       - task: generate-manifest
         file: concourse-ci-repo/ci/tasks/generate-manifest.yml
         params:
           MF_NAME: ((content-labeling-service.app_name))
-          MF_BUILDPACK: ((content-labeling-service.buildpack))
+          MF_DOCKER_IMAGE: ((docker-registry.repo))/rc/((content-labeling-service.app_name)):latest
           MF_ROUTES: [ route: ((content-labeling-service.app_name))-dev.((pcf-dev-environment.app_domain)) ]
-          MF_SERVICES: [ ((splunk.service_name)), ((config-server.name)) ]
+          MF_SERVICES: [ ((splunk.service_name)) ]
           MF_TIMEOUT: ((content-labeling-service-dev.timeout))
           MF_MEMORY: ((content-labeling-service-dev.memory))
           MF_INSTANCES: ((content-labeling-service-dev.instances))
@@ -63,32 +84,22 @@ jobs:
           MF_HEALTH_CHECK_HTTP_ENDPOINT: ((content-labeling-service.health_check_endpoint))
           MF_ENV:
             SPRING_PROFILES_ACTIVE: dev
+            SPRING_CLOUD_CONFIG_URI: ((config-server.service-uri))
+            SPRING_CLOUD_CONFIG_USERNAME: ((config-server.service-username))
+            SPRING_CLOUD_CONFIG_PASSWORD: ((config-server.service-password))
       - put: cf-deploy-to-dev
         resource: cf-env
         params:
           space: ((pcf-dev-environment.space))
           command: push
           manifest: task-output/manifest.yml
-          path: nexus-rc/((content-labeling-service.app_name))-*.jar
-      - task: set-health-check
-        file: concourse-ci-repo/ci/tasks/set-health-check.yml
-        params:
-          HC_APP: ((content-labeling-service.app_name))
-          HC_HTTP_ENDPOINT: ((content-labeling-service.health_check_endpoint))
-          HC_TIMEOUT: ((content-labeling-service.health_check_timeout))
-          HC_TYPE: ((content-labeling-service.health_check_type))
-          PWS_API: ((pcf-dev-environment.api))
-          PWS_ORG: ((pcf-dev-environment.organization))
-          PWS_PWD: ((pcf-dev-environment.password))
-          PWS_SPACE: ((pcf-dev-environment.space))
-          PWS_USER: ((pcf-dev-environment.username))
 
   - name: deploy-to-qa
     serial: true
     serial_groups: [version]
     plan:
-      - aggregate:
-          - get: nexus-rc
+      - in_parallel:
+          - get: docker-image-repo-rc
             trigger: true
             passed: [deploy-to-dev]
           - get: version
@@ -108,8 +119,8 @@ jobs:
         file: concourse-ci-repo/ci/tasks/generate-manifest-blue-green.yml
         params:
           MF_NAME: ((content-labeling-service.app_name))
-          MF_BUILDPACK: ((content-labeling-service.buildpack))
-          MF_SERVICES: [ ((splunk.service_name)), ((config-server.name)) ]
+          MF_DOCKER_IMAGE: ((docker-registry.repo))/rc/((content-labeling-service.app_name)):latest
+          MF_SERVICES: [ ((splunk.service_name)) ]
           MF_TIMEOUT: ((content-labeling-service-qa.timeout))
           MF_MEMORY: ((content-labeling-service-qa.memory))
           MF_INSTANCES: ((content-labeling-service-qa.instances))
@@ -118,31 +129,21 @@ jobs:
           MF_HEALTH_CHECK_HTTP_ENDPOINT: ((content-labeling-service.health_check_endpoint))
           MF_ENV:
             SPRING_PROFILES_ACTIVE: qa
+            SPRING_CLOUD_CONFIG_URI: ((config-server.service-uri))
+            SPRING_CLOUD_CONFIG_USERNAME: ((config-server.service-username))
+            SPRING_CLOUD_CONFIG_PASSWORD: ((config-server.service-password))
       - put: cf-deploy-to-qa
         resource: cf-env
         params:
           space: ((pcf-qa-environment.space))
           command: push
           manifest: task-output/manifest.yml
-          path: nexus-rc/((content-labeling-service.app_name))-*.jar
-      - task: set-health-check
-        file: concourse-ci-repo/ci/tasks/set-health-check-blue-green.yml
-        params:
-          HC_APP: ((content-labeling-service.app_name))
-          HC_HTTP_ENDPOINT: ((content-labeling-service.health_check_endpoint))
-          HC_TIMEOUT: ((content-labeling-service.health_check_timeout))
-          HC_TYPE: ((content-labeling-service.health_check_type))
-          PWS_API: ((pcf-qa-environment.api))
-          PWS_ORG: ((pcf-qa-environment.organization))
-          PWS_PWD: ((pcf-qa-environment.password))
-          PWS_SPACE: ((pcf-qa-environment.space))
-          PWS_USER: ((pcf-qa-environment.username))
 
   - name: toggle-inactive-active
     serial: true
     plan:
-      - aggregate:
-          - get: nexus-rc
+      - in_parallel:
+          - get: docker-image-repo-rc
             trigger: true
             passed: [deploy-to-qa]
           - get: concourse-ci-repo
@@ -162,19 +163,21 @@ jobs:
     public: true
     serial_groups: [version]
     plan:
-      - aggregate:
-          - get: nexus-rc
+      - in_parallel:
+          - get: docker-image-repo-rc
             trigger: true
             passed: [deploy-to-qa]
+            params: { save: true }
           - get: version
             passed: [deploy-to-qa]
             params: { bump: final }
       - put: version
         params: { file: version/version }
-      - put: nexus-release
+      - put: docker-image-repo-release
         params:
-          file: nexus-rc/((content-labeling-service.app_name))-*.jar
-          version_file: version/version
+          load: docker-image-repo-rc
+          tag: version/version
+          tag_as_latest: true
 
   - name: major
     public: true
@@ -245,14 +248,18 @@ resources:
       skip_cert_check: true
       username: ((artifact-repo.username))
       password: ((artifact-repo.password))
-  - name: nexus-release
-    type: maven-resource
+  - name: docker-image-repo-rc
+    type: docker-image
     source:
-      url: ((artifact-repo.url))
-      artifact: com.identifix:((content-labeling-service.app_name)):jar
-      skip_cert_check: true
-      username: ((artifact-repo.username))
-      password: ((artifact-repo.password))
+      repository: ((docker-registry.repo))/rc/((content-labeling-service.app_name))
+      username: ((docker-registry.username))
+      password: ((docker-registry.password))
+  - name: docker-image-repo-release
+    type: docker-image
+    source:
+      repository: ((docker-registry.repo))/release/((content-labeling-service.app_name))
+      username: ((docker-registry.username))
+      password: ((docker-registry.password))
   - name: version
     type: semver
     source:

@@ -58,3 +58,9 @@ dependencies {
 	testImplementation "org.spockframework:spock-core:${spockVersion}"
 	testImplementation "org.spockframework:spock-spring:${spockVersion}"
 }
+
+docker {
+	name "${project.group}/${bootJar.baseName}"             // This will be the name of the docker image when running locally
+	copySpec.from("build/libs").into("libs")                // copy the libs folder to build/docker/libs where the docker build can access it
+	buildArgs(['JAR_FILE': "libs/${bootJar.archiveName}"])  // tell docker which jar to use
+}
