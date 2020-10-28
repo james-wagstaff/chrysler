@@ -18,7 +18,7 @@ class GitService {
     String getBaseRules(String publisher, String manualType) {
         updateRepo()
         try {
-            File file = new File("${labelingServiceConfig.gitDir}/${publisher.toLowerCase()}/${manualType.toLowerCase()}_base_rules.csv")
+            File file = new File("${labelingServiceConfig.gitDir}/${publisher.toLowerCase()}/${manualType.toLowerCase().replaceAll(' ', '_')}_base_rules.csv")
             file.text
         } catch (FileNotFoundException e) {
             log.error(e.message)
