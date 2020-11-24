@@ -55,7 +55,14 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-config'
 	implementation 'org.springframework.cloud:spring-cloud-commons'
 	implementation 'org.springframework.cloud:spring-cloud-context'
+	implementation 'org.springframework.boot:spring-boot-starter-amqp'
 	implementation 'com.identifix:identifix-project:+'
+	implementation "com.identifix:crawler-mq-utils:${identifixCrawlerMqUtilsVersion}"
+	compile ("com.identifix:kraken-client:${identifixKrakenClientVersion}") {
+		exclude group: 'org.slf4j', module: 'slf4j-simple'
+	}
+	implementation "com.identifix:html-toolbox:${identifixHtmlToolBoxVersion}"
+	implementation "com.rabbitmq:amqp-client:${rabbitAmqpClientVersion}"
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'

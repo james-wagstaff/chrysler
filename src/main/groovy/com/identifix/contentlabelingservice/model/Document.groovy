@@ -1,4 +1,4 @@
-package com.identifix.contentlabelingservice.web
+package com.identifix.contentlabelingservice.model
 
 import groovy.transform.Canonical
 
