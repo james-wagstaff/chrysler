@@ -1,4 +1,5 @@
-FROM openjdk:8-jre-slim
+ARG DOCKER_IMAGE
+FROM $DOCKER_IMAGE
 
 ARG JAR_FILE
 COPY ${JAR_FILE} app.jar

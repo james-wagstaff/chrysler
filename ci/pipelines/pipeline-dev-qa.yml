@@ -41,6 +41,7 @@ jobs:
           tag_as_latest: true
           build_args:
             JAR_FILE: nexus-rc/((content-labeling-service.app_name))-*.jar
+            DOCKER_IMAGE: ((proget.uri))((proget.docker_path))/openjdk:8-jre-slim
 
   - name: sonarqube
     public: true
@@ -73,7 +74,8 @@ jobs:
         file: concourse-ci-repo/ci/tasks/generate-manifest.yml
         params:
           MF_NAME: ((content-labeling-service.app_name))
-          MF_DOCKER_IMAGE: ((docker-registry.repo))/rc/((content-labeling-service.app_name)):latest
+          MF_DOCKER_IMAGE: ((proget.uri))((proget.docker_path))/rc/((content-labeling-service.app_name)):latest
+          MF_DOCKER_USER: ((proget.username))
           MF_ROUTES: [ route: ((content-labeling-service.app_name))-dev.((pcf-dev-environment.app_domain)) ]
           MF_SERVICES: [ ((splunk.service_name)) ]
           MF_TIMEOUT: ((content-labeling-service-dev.timeout))
@@ -93,6 +95,7 @@ jobs:
           space: ((pcf-dev-environment.space))
           command: push
           manifest: task-output/manifest.yml
+          docker_password: ((proget.password))
 
   - name: deploy-to-qa
     serial: true
@@ -119,7 +122,8 @@ jobs:
         file: concourse-ci-repo/ci/tasks/generate-manifest-blue-green.yml
         params:
           MF_NAME: ((content-labeling-service.app_name))
-          MF_DOCKER_IMAGE: ((docker-registry.repo))/rc/((content-labeling-service.app_name)):latest
+          MF_DOCKER_IMAGE: ((proget.uri))((proget.docker_path))/rc/((content-labeling-service.app_name)):latest
+          MF_DOCKER_USER: ((proget.username))
           MF_SERVICES: [ ((splunk.service_name)) ]
           MF_TIMEOUT: ((content-labeling-service-qa.timeout))
           MF_MEMORY: ((content-labeling-service-qa.memory))
@@ -138,6 +142,7 @@ jobs:
           space: ((pcf-qa-environment.space))
           command: push
           manifest: task-output/manifest.yml
+          docker_password: ((proget.password))
 
   - name: toggle-inactive-active
     serial: true
@@ -212,17 +217,23 @@ resource_types:
   - name: maven-resource
     type: docker-image
     source:
-      repository: patrickcrocker/maven-resource
+      repository: ((proget.uri))((proget.docker_path))/patrickcrocker/maven-resource
       tag: latest
+      username: ((proget.username))
+      password: ((proget.password))
   - name: s3-sync
     type: docker-image
     source:
-      repository: 18fgsa/s3-resource-simple
+      repository: ((proget.uri))((proget.docker_path))/18fgsa/s3-resource-simple
+      username: ((proget.username))
+      password: ((proget.password))
   - name: cf-cli-resource
     type: docker-image
     source:
-      repository: nulldriver/cf-cli-resource
+      repository: ((proget.uri))((proget.docker_path))/nulldriver/cf-cli-resource
       tag: latest
+      username: ((proget.username))
+      password: ((proget.password))
 
 resources:
   - name: app-repo
@@ -251,15 +262,15 @@ resources:
   - name: docker-image-repo-rc
     type: docker-image
     source:
-      repository: ((docker-registry.repo))/rc/((content-labeling-service.app_name))
-      username: ((docker-registry.username))
-      password: ((docker-registry.password))
+      repository: ((proget.uri))((proget.docker_path))/rc/((content-labeling-service.app_name))
+      username: ((proget.username))
+      password: ((proget.password))
   - name: docker-image-repo-release
     type: docker-image
     source:
-      repository: ((docker-registry.repo))/release/((content-labeling-service.app_name))
-      username: ((docker-registry.username))
-      password: ((docker-registry.password))
+      repository: ((proget.uri))((proget.docker_path))/release/((content-labeling-service.app_name))
+      username: ((proget.username))
+      password: ((proget.password))
   - name: version
     type: semver
     source:
