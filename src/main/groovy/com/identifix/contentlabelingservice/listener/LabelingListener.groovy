@@ -3,7 +3,6 @@ package com.identifix.contentlabelingservice.listener
 import com.identifix.contentlabelingservice.configuration.LabelingServiceConfig
 import com.identifix.contentlabelingservice.handler.LabelingMessageHandler
 import com.identifix.crawlermqutils.configuration.MessageQueueLibrary
-import com.identifix.crawlermqutils.handler.MessageHandler
 import com.identifix.crawlermqutils.listener.Listener
 import com.identifix.crawlermqutils.listener.MessageContext
 import com.identifix.crawlermqutils.sender.Sender

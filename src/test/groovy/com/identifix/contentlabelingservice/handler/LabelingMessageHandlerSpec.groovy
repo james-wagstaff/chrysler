@@ -24,7 +24,7 @@ class LabelingMessageHandlerSpec extends Specification {
 
     void setup() {
         labelMakers = [new UnknownLabelMaker(), (1..5).collect { Mock(AbstractLabelMaker) } ].flatten() as LabelMaker[]
-        systemUnderTest = new LabelingMessageHandler(allContentLabelMakers: labelMakers)
+        systemUnderTest = new LabelingMessageHandler(allContentLabelMakers:labelMakers)
     }
 
     def "should try to use each content labelMaker until one responds"() {

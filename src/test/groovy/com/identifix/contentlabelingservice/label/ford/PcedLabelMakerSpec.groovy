@@ -7,7 +7,6 @@ import com.identifix.contentlabelingservice.service.GitService
 import com.identifix.contentlabelingservice.service.LabelService
 import com.identifix.crawlermqutils.handler.MessageHandlerResponse
 import com.identifix.kraken.client.KrakenClient
-import com.identifix.kraken.client.bean.Manual
 import org.springframework.amqp.core.Message
 import spock.lang.Specification
 

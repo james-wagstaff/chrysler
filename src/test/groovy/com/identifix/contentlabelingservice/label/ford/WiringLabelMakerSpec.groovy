@@ -2,8 +2,6 @@ package com.identifix.contentlabelingservice.label.ford
 
 import com.identifix.contentlabelingservice.configuration.LabelingServiceConfig
 import com.identifix.contentlabelingservice.label.MessageConverter
-import com.identifix.contentlabelingservice.label.toyota.RepairManualLabelMaker
-import com.identifix.contentlabelingservice.label.toyota.ToyotaRepairManualMessage
 import com.identifix.contentlabelingservice.service.CompleteNotifierService
 import com.identifix.contentlabelingservice.service.GitService
 import com.identifix.contentlabelingservice.service.LabelService

@@ -4,7 +4,6 @@ import com.identifix.contentlabelingservice.label.AbstractLabelMaker
 import com.identifix.contentlabelingservice.label.AbstractLabelMakerMessage
 import com.identifix.contentlabelingservice.label.LabelMakerMessage
 import com.identifix.contentlabelingservice.model.Document
-import com.identifix.contentlabelingservice.model.LabelRequest
 import com.identifix.crawlermqutils.handler.MessageHandlerResponse
 import com.identifix.kraken.client.bean.Manual
 import groovy.util.logging.Slf4j
@@ -18,52 +17,23 @@ import javax.validation.constraints.Pattern
 class RepairManualLabelMaker extends AbstractLabelMaker {
     Class messageClass = ToyotaRepairManualMessage
     @Override
-    MessageHandlerResponse LabelContent(LabelMakerMessage message) {
+    MessageHandlerResponse labelContent(LabelMakerMessage message) {
         Manual manual = krakenClient.getManuals(message.year, message.model, null)
-                .findAll { it.publisherManualCategory.toLowerCase() == "repair manual" && (!(message as ToyotaRepairManualMessage).manualId || it.manualId == (message as ToyotaRepairManualMessage).manualId)}.last()
+                .findAll { it.publisherManualCategory.toLowerCase() == "repair manual" && (!(message as ToyotaRepairManualMessage).manualId || it.manualId == (message as ToyotaRepairManualMessage).manualId) }.last()
         byte[] tocXml = krakenClient.getManualBytes(manual)
         String repairManualCsv = krakenClient.buildRepairManualLabelingCsv(message.year, message.model, tocXml)
-        labelCsv(repairManualCsv, manual.title)
+        labelCsv(repairManualCsv, 'Toyota', 'Repair Manual', manual.title)
         SUCCESS
     }
 
     @Override
-    void labelCsv(String Csv, String title) {
-        int totalDocs = 0
-        int totalLabelsFound = 0
-        boolean refresh = true
-        StringBuilder labelSpreadsheet = new StringBuilder("Label,title,tocpath,category,linkToPage,nuxeoId\r\n")
-        Csv.split("\\r?\\n").drop(1).each {
-            totalDocs++
-            Document document = createDocument(it)
-            LabelRequest request = new LabelRequest()
-            request.publisher = "Toyota"
-            request.manualType = "Repair Manual"
-            request.title = document.title
-            request.refresh = refresh
+    String headerValue(Document document) {
+        cleanToc(document.tocpath).split(TOC_SPLIT)[2]
+    }
 
-            if (refresh) {
-                refresh = false
-            }
-
-            try {
-                request.header = document.tocpath.split(" > ")[2]
-            } catch(Exception e) {
-                log.error(e.message)
-            }
-            String label  = labelService.createLabel(request)
-            document.label = label ? label : "Not Found"
-
-            if (label) {
-                totalLabelsFound++
-            }
-
-            labelSpreadsheet.append("${document.label},${document.title},${document.tocpath},${document.category},${document.linkToPage},${document.nuxeoId}\r\n")
-        }
-
-         log.info("${((totalLabelsFound / totalDocs) * 100).round(2)} % labeled")
-
-        gitService.uploadCsv(labelSpreadsheet as String, "Toyota","Repair Manual", title)
+    @Override
+    String titleValue(Document document) {
+        document.title
     }
 }
 
