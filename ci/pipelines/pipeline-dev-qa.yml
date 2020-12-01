@@ -249,7 +249,6 @@ resources:
     source:
       uri: ((git-repo.uri))/concourse-ci.git
       branch: master
-      tag_filter: 0.0.44
       private_key: ((git-repo.ssh_key))
   - name: nexus-rc
     type: maven-resource
