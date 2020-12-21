@@ -4,10 +4,7 @@ import com.identifix.contentlabelingservice.configuration.LabelingServiceConfig
 import com.identifix.contentlabelingservice.error.BitBucketNetworkException
 import groovy.util.logging.Slf4j
 import org.eclipse.jgit.api.CloneCommand
-import org.eclipse.jgit.api.CreateBranchCommand
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.api.ListBranchCommand
-import org.eclipse.jgit.lib.Ref
 import org.eclipse.jgit.transport.CredentialsProvider
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import org.springframework.beans.factory.annotation.Autowired
@@ -39,8 +36,7 @@ class GitService {
     void uploadCsv(String csv, String oem, String manualType, String filename) {
         String cleanFilename = filename.replaceAll('/', UNDERSCORE)
         String path = "_nuxeo_labeling/${oem}/To Do/${manualType}/${cleanFilename}.csv"
-        updateRepo(true)
-        checkoutNewLabelBranch(cleanFilename)
+        updateRepo(false)
         File file = new File("${labelingServiceConfig.gitDir}/${path}")
         file.createNewFile()
         PrintWriter writer = new PrintWriter(file)
@@ -48,7 +44,6 @@ class GitService {
         file.append(csv.toString().bytes)
         file.createNewFile()
         addAndPush(path, "Added ${cleanFilename}.csv")
-        updateRepo(true)
     }
 
     void addAndPush(String filePattern, String commitMessage) {
@@ -93,32 +88,16 @@ class GitService {
         Git.open(gitDir)
     }
 
-    void checkoutNewLabelBranch(String branchName) {
-        File gitDir = new File(labelingServiceConfig.gitDir)
-        if (gitDir.exists()) {
-            log.info(REPO_DETECTED)
-            Git git = openGit(gitDir)
-            List<Ref> branches = git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call()
-            branches = branches.findAll { it.name.contains('remotes') && it.name.contains(branchName.replaceAll(SPACE, UNDERSCORE)) }
-            git.checkout().
-                    setName("${ branchName.replaceAll(SPACE, UNDERSCORE) }${ branches.size() == 0 ? BLANK : "-${ findLastIndexOfBranch(branches, branchName.replaceAll(SPACE, UNDERSCORE)) }" }").
-                    setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM).
-                    setStartPoint("origin/master").
-                    setCreateBranch(true)
-                    .call()
-        } else {
-            throw new BitBucketNetworkException(REPO_DOES_NOT_EXIST)
+    byte[] findCsv(String oem, String manualType, String id) {
+        updateRepo()
+        log.info("Finding File for ${oem} - ${manualType} - containing id: ${id}")
+        String path = "_nuxeo_labeling/${oem}/Done/${manualType}"
+        File labelDir = new File("${labelingServiceConfig.gitDir}/${path}")
+        if (labelDir.exists() && labelDir.list().findAll { it.contains(id) }.size() == 1) {
+            log.info("File Found for ${oem} - ${manualType} - containing id: ${id}")
+            return new File("${labelDir.path}/${labelDir.list().findAll { it.contains(id) }.collect().first()}").text.bytes
         }
-    }
-
-    static int findLastIndexOfBranch(List<Ref> branches, String branchName) {
-        int value = 0
-        branches.findAll { !it.name.endsWith(branchName) }.each {
-            int nameValue = it.name.split('-').last().toInteger()
-            if (nameValue > value) {
-                value = nameValue
-            }
-        }
-        value + 1
+        log.info("File NOT Found for ${oem} - ${manualType} - containing id: ${id}")
+        null
     }
 }

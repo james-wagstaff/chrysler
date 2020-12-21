@@ -11,8 +11,8 @@ import com.identifix.kraken.client.bean.Manual
 import org.springframework.amqp.core.Message
 import spock.lang.Specification
 
-class RepairManualLabelMakerSpec extends Specification {
-    RepairManualLabelMaker systemUnderTest
+class ToyotaLabelMakerSpec extends Specification {
+    ToyotaLabelMaker systemUnderTest
     LabelService mockLabelService = Mock(LabelService)
     GitService mockGitService = Mock(GitService)
     MessageConverter mockMessageConverter = Mock(MessageConverter)
@@ -24,7 +24,7 @@ class RepairManualLabelMakerSpec extends Specification {
             ',VEHICLE IDENTIFICATION AND SERIAL NUMBERS; 2013 - 2018 MY RAV4 [12/2012 - ], General > INTRODUCTION > IDENTIFICATION INFORMATION > VEHICLE IDENTIFICATION AND SERIAL NUMBERS; 2013 - 2018 MY RAV4 [12/2012 - ], Repair Manual, toyota-crawler-bucket/qa/unzipped/TOYOTA/2013/RM/13-18RAV4_RM30B0U_EN_20-08-10_HTML/RM30B0U/xhtml/RM10000000050TD.html, 53e11ac3-8b5a-35bb-bcd4-fe57b5328189'
 
     void setup() {
-        systemUnderTest = new RepairManualLabelMaker().with {
+        systemUnderTest = new ToyotaLabelMaker().with {
             labelingServiceConfig = mockLabelingServiceConfig
             gitService = mockGitService
             labelService = mockLabelService
@@ -36,10 +36,11 @@ class RepairManualLabelMakerSpec extends Specification {
     }
 
     def 'handleMessage' () {
-        ToyotaRepairManualMessage message = new ToyotaRepairManualMessage().with {
+        ToyotaManualMessage message = new ToyotaManualMessage().with {
             manualId = 'test'
             year = 'test'
             model = 'test'
+            manualType = 'test'
             it
         }
         Manual manual = new Manual().with {
