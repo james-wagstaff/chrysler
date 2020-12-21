@@ -53,7 +53,7 @@ class ToyotaLabelMakerSpec extends Specification {
         then:
             1 * mockMessageConverter.convertMessage(_, _) >> message
             1 * mockKrakenClient.getManuals(_, _, _) >>  [manual]
-            1 * mockKrakenClient.buildRepairManualLabelingCsv(_, _, _) >> labels
+            1 * mockKrakenClient.buildToyotaManualLabelingCsv(_, _, _, _) >> labels
             1 * mockGitService.uploadCsv(_, _, _, _)
             1 * mockLabelService.createLabel(_) >> "test"
             1 * mockLabelService.createLabel(_) >> null
