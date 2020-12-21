@@ -84,7 +84,7 @@ class GitServiceSpec extends Specification {
         when:
             byte[] actual = gitService.findCsv('Toyota', 'Repair Manual', 'test')
         then:
-            actual == ''.bytes
+            actual != null
     }
 
     def 'get csv not found'() {
