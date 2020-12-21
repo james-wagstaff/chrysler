@@ -82,7 +82,7 @@ class GitServiceSpec extends Specification {
             it.labelingServiceConfig = labelingServiceConfig
         }
         when:
-            byte[] actual = gitService.findCsv('Toyota', 'Repair Manual', 'test')
+            byte[] actual = gitService.findCsv('toyota', 'Repair Manual', 'test')
         then:
             actual != null
     }
