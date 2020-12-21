@@ -14,15 +14,16 @@ import javax.validation.constraints.Pattern
 
 @Component
 @Slf4j
-class RepairManualLabelMaker extends AbstractLabelMaker {
-    Class messageClass = ToyotaRepairManualMessage
+class ToyotaLabelMaker extends AbstractLabelMaker {
+    Class messageClass = ToyotaManualMessage
     @Override
     MessageHandlerResponse labelContent(LabelMakerMessage message) {
+        ToyotaManualMessage toyotaManualMessage = message as ToyotaManualMessage
         Manual manual = krakenClient.getManuals(message.year, message.model, null)
-                .findAll { it.publisherManualCategory.toLowerCase() == "repair manual" && (!(message as ToyotaRepairManualMessage).manualId || it.manualId == (message as ToyotaRepairManualMessage).manualId) }.last()
+                .findAll { it.manualId == toyotaManualMessage.manualId }.last()
         byte[] tocXml = krakenClient.getManualBytes(manual)
         String repairManualCsv = krakenClient.buildRepairManualLabelingCsv(message.year, message.model, tocXml)
-        labelCsv(repairManualCsv, 'Toyota', 'Repair Manual', manual.title)
+        labelCsv(repairManualCsv, 'Toyota', toyotaManualMessage.manualType, "${message.manualId} ${manual.title}")
         SUCCESS
     }
 
@@ -37,9 +38,10 @@ class RepairManualLabelMaker extends AbstractLabelMaker {
     }
 }
 
-class ToyotaRepairManualMessage extends AbstractLabelMakerMessage {
+class ToyotaManualMessage extends AbstractLabelMakerMessage {
     @NotNull
-    @Pattern(regexp=/TOYOTA_REPAIR_MANUAL_LABEL/)
+    @Pattern(regexp=/TOYOTA_MANUAL_LABEL/)
     String crawlerTypeKey
-    String manualId
+    @NotNull
+    String manualType
 }

@@ -39,6 +39,7 @@ class WiringLabelMakerSpec extends Specification {
         FordWiringMessage message = new FordWiringMessage().with {
             year = 'test'
             model = 'test'
+            manualId = 'test'
             it
         }
         Manual manual = new Manual().with {
