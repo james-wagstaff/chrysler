@@ -19,7 +19,7 @@ class PcedLabelMaker extends AbstractLabelMaker {
     @Override
     MessageHandlerResponse labelContent(LabelMakerMessage message) {
         String csv = krakenClient.buildPcedLabelingCsv(message.year, (message as FordPcedMessage).type)
-        labelCsv(csv, 'Ford', 'PCED', "${message.manualId} ${message.year}-${(message as FordPcedMessage).type} PCED Manual")
+        labelCsv(csv, 'Ford', 'PCED', message.manualId, "${message.year}-${(message as FordPcedMessage).type} PCED Manual")
         SUCCESS
     }
 

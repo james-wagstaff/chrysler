@@ -70,7 +70,7 @@ abstract class AbstractLabelMaker implements LabelMaker {
         }
     }
 
-    void labelCsv(String csv, String publisher, String manualType, String title) {
+    void labelCsv(String csv, String publisher, String manualType, String manualId, String title) {
         int totalDocs = 0
         int totalLabelsFound = 0
         boolean refresh = true
@@ -101,7 +101,7 @@ abstract class AbstractLabelMaker implements LabelMaker {
 
         log.info("${((totalLabelsFound / totalDocs) * 100).round(2)} % labeled")
 
-        gitService.uploadCsv(labelSpreadsheet as String, publisher, manualType, title)
+        gitService.uploadCsv(labelSpreadsheet as String, publisher, manualType, "${manualId} ${title}")
     }
 
     String cleanToc(String toc) {
