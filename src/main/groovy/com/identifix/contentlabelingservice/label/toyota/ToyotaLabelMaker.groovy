@@ -23,7 +23,7 @@ class ToyotaLabelMaker extends AbstractLabelMaker {
                 .findAll { it.manualId == toyotaManualMessage.manualId }.last()
         byte[] tocXml = krakenClient.getManualBytes(manual)
         String repairManualCsv = krakenClient.buildToyotaManualLabelingCsv(message.year, message.model, toyotaManualMessage.manualType, tocXml)
-        labelCsv(repairManualCsv, 'Toyota', toyotaManualMessage.manualType, "${message.manualId} ${manual.title}")
+        labelCsv(repairManualCsv, 'Toyota', toyotaManualMessage.manualType, message.manualId, "${manual.title}")
         SUCCESS
     }
 

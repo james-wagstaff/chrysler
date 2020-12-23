@@ -19,7 +19,7 @@ class WorkshopLabelMaker extends AbstractLabelMaker {
     @Override
     MessageHandlerResponse labelContent(LabelMakerMessage message) {
         String csv = krakenClient.buildWorkshopLabelingCsv(message.year, message.model)
-        labelCsv(csv, "Ford", "Workshop", "${message.manualId} ${message.year}-${message.model} Workshop Manual")
+        labelCsv(csv, "Ford", "Workshop", message.manualId, "${message.year}-${message.model} Workshop Manual")
         SUCCESS
     }
 

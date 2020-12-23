@@ -22,7 +22,7 @@ class WiringLabelMaker extends AbstractLabelMaker {
         Manual manual = krakenClient.getManuals(message.year, message.model, null).findAll { it.manualId == message.manualId } [0]
         byte[] tocJson = krakenClient.getManualBytes(manual)
         String wiringCsv = krakenClient.buildWiringLabelingCsv(message.year, message.model, tocJson)
-        labelCsv(wiringCsv, 'Ford', 'Wiring', "${message.manualId} ${manual.title}")
+        labelCsv(wiringCsv, 'Ford', 'Wiring', message.manualId, "${message.manualId} ${manual.title}")
         SUCCESS
     }
 
