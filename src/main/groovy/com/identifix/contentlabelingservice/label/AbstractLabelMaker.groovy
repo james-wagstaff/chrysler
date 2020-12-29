@@ -32,7 +32,7 @@ abstract class AbstractLabelMaker implements LabelMaker {
     @Autowired
     LabelingServiceConfig labelingServiceConfig
 
-    static final String TOC_SPLIT = ' > '
+    static final String TOC_SPLIT = '\\s*>\\s*'
 
     @Lazy(soft=true)
     KrakenClient krakenClient = {
