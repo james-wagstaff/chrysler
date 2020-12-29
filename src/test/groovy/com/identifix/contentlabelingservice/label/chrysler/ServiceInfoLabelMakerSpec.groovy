@@ -7,6 +7,7 @@ import com.identifix.contentlabelingservice.service.LabelService
 import com.identifix.crawlermqutils.handler.MessageHandlerResponse
 import com.identifix.kraken.client.KrakenClient
 import com.identifix.kraken.client.bean.Manual
+import org.json.JSONArray
 import spock.lang.Specification
 
 class ServiceInfoLabelMakerSpec extends Specification {
@@ -66,6 +67,6 @@ class ServiceInfoLabelMakerSpec extends Specification {
         then:
             0 * _
         and:
-            result
+            new JSONArray(new String(result)).length() == 3
     }
 }
