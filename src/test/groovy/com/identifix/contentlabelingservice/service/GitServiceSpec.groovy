@@ -1,14 +1,18 @@
 package com.identifix.contentlabelingservice.service
 
 import com.identifix.contentlabelingservice.configuration.LabelingServiceConfig
+import com.identifix.contentlabelingservice.error.BitBucketNetworkException
 import org.eclipse.jgit.api.AddCommand
 import org.eclipse.jgit.api.CommitCommand
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.PushCommand
+import org.eclipse.jgit.api.Status
+import org.eclipse.jgit.api.StatusCommand
 import spock.lang.Specification
 
 class GitServiceSpec extends Specification {
 
+    Set<String> fileChange = ["test"]
     GitService systemUnderTest = new GitService()
     LabelingServiceConfig labelingServiceConfig = new LabelingServiceConfig().with {
         repoUsername = 'test'
@@ -59,6 +63,7 @@ class GitServiceSpec extends Specification {
         def gitService = Spy(GitService) {
             updateRepo(false) >> null
             openGit(_ as File) >> mockGit
+            isDirty() >> false
             it.labelingServiceConfig = labelingServiceConfig
         }
         when:
@@ -74,6 +79,71 @@ class GitServiceSpec extends Specification {
             1 * mockPushCommand.setCredentialsProvider(_) >> mockPushCommand
             1 * mockPushCommand.call()
 
+    }
+
+    def 'upload csv more then 1 file'() {
+        Git mockGit = Mock(Git)
+        def gitService = Spy(GitService) {
+            updateRepo(false) >> null
+            updateRepo(true) >> null
+            openGit(_ as File) >> mockGit
+            isDirty() >> true
+            it.labelingServiceConfig = labelingServiceConfig
+        }
+        when:
+            gitService.uploadCsv("", 'toyota', 'Repair Manual', 'test')
+        then:
+            0 * mockGit.add()
+            thrown(BitBucketNetworkException)
+
+    }
+
+    def 'is dirty'() {
+        Git mockGit = Mock(Git)
+        StatusCommand statusCommand = Mock(StatusCommand)
+        Status status = Mock(Status)
+        def gitService = Spy(GitService) {
+            openGit(_ as File) >> mockGit
+            it.labelingServiceConfig = labelingServiceConfig
+        }
+        when:
+            boolean actual = gitService.isDirty()
+        then:
+            1 * mockGit.status() >> statusCommand
+            1 * statusCommand.call() >> status
+            1 * status.removed >> fileChange
+            1 * status.modified >> fileChange
+            1 * status.added >> fileChange
+            1 * status.changed >> fileChange
+            1 * status.missing >> fileChange
+            1 * status.untracked >> fileChange
+            1 * status.ignoredNotInIndex >> fileChange
+            1 * status.conflicting >> fileChange
+            actual
+    }
+
+    def 'is not dirty'() {
+        Git mockGit = Mock(Git)
+        StatusCommand statusCommand = Mock(StatusCommand)
+        Status status = Mock(Status)
+        def gitService = Spy(GitService) {
+            openGit(_ as File) >> mockGit
+            it.labelingServiceConfig = labelingServiceConfig
+        }
+        when:
+            boolean actual = gitService.isDirty()
+        then:
+            1 * mockGit.status() >> statusCommand
+            1 * statusCommand.call() >> status
+            1 * status.removed >> fileChange
+            1 * status.modified >> []
+            1 * status.added >> []
+            1 * status.changed >> []
+            1 * status.missing >> []
+            1 * status.untracked >> []
+            1 * status.ignoredNotInIndex >> []
+            1 * status.conflicting >> []
+            !actual
     }
 
     def 'get csv found'() {

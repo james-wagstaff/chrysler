@@ -5,6 +5,7 @@ import com.identifix.contentlabelingservice.error.BitBucketNetworkException
 import groovy.util.logging.Slf4j
 import org.eclipse.jgit.api.CloneCommand
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.api.Status
 import org.eclipse.jgit.transport.CredentialsProvider
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import org.springframework.beans.factory.annotation.Autowired
@@ -52,9 +53,14 @@ class GitService {
         if (gitDir.exists()) {
             log.info(REPO_DETECTED)
             Git git = openGit(gitDir)
-            git.add().addFilepattern(filePattern).call()
-            git.commit().setMessage(commitMessage).call()
-            git.push().setCredentialsProvider(credentialsProvider).call()
+            if (isDirty()) {
+                updateRepo(true)
+                throw new BitBucketNetworkException("More then one change in repo please resubmit request!")
+            } else {
+                git.add().addFilepattern(filePattern).call()
+                git.commit().setMessage(commitMessage).call()
+                git.push().setCredentialsProvider(credentialsProvider).call()
+            }
         } else {
             throw new BitBucketNetworkException(REPO_DOES_NOT_EXIST)
         }
@@ -99,5 +105,14 @@ class GitService {
         }
         log.info("File NOT Found for ${oem} - ${manualType} - containing id: ${id}")
         null
+    }
+
+    boolean isDirty() {
+        File gitDir = new File(labelingServiceConfig.gitDir)
+        Git git = openGit(gitDir)
+        Status status = git.status().call()
+        status.modified.size() + status.added.size() + status.changed.size() +
+                status.removed.size() + status.missing.size() + status.untracked.size() +
+                status.conflicting.size() + status.ignoredNotInIndex.size() > 1
     }
 }
