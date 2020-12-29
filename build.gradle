@@ -58,6 +58,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-amqp'
 	implementation 'com.identifix:identifix-project:+'
 	implementation "com.identifix:crawler-mq-utils:${identifixCrawlerMqUtilsVersion}"
+	implementation 'org.jsoup:jsoup:1.11.3'
 	compile ("com.identifix:kraken-client:${identifixKrakenClientVersion}") {
 		exclude group: 'org.slf4j', module: 'slf4j-simple'
 	}
