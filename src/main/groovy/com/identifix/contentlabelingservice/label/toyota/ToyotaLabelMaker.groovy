@@ -29,7 +29,14 @@ class ToyotaLabelMaker extends AbstractLabelMaker {
 
     @Override
     String headerValue(Document document) {
-        cleanToc(document.tocpath).split(TOC_SPLIT)[2]
+        String[] toc = cleanToc(document.tocpath).split(TOC_SPLIT)
+        switch (toc.size()) {
+            case 2:
+            case 3:
+                return toc[0]
+            default:
+                return toc[2]
+        }
     }
 
     @Override
