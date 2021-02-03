@@ -49,7 +49,7 @@ class ServiceInfoLabelMaker extends AbstractLabelMaker {
     }
 
     static byte[] toJSONArrayByte(byte[] content) {
-        org.jsoup.nodes.Document document = Jsoup.parse(new String(content), "", Parser.xmlParser())
+        org.jsoup.nodes.Document document = Jsoup.parse(new String(content), CommonConstants.UTF_8, Parser.xmlParser())
         JSONArray array = new JSONArray()
         document.select(CommonConstants.ITEM).each { item ->
             if (item.hasAttr(CommonConstants.PAGECODE)) {
