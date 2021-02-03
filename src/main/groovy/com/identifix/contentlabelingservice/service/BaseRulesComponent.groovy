@@ -27,7 +27,7 @@ class BaseRulesComponent {
     List<BaseRule> getBaseRules(String publisher, String manualType) {
         String baseRulesWhole =  gitService.getBaseRules(publisher, manualType)
         Map<String, BaseRule> baseRulesMap = [:]
-        baseRulesWhole?.split(CSV_LINE_BREAK).each {
+        baseRulesWhole?.split(CSV_LINE_BREAK)?.each {
             String[] baseRuleValues = it.split(CSV_COMMA_BREAK)
             if (baseRuleValues.size() >= CSV_BASE_COLUMN_SIZE &&
                     !baseRulesMap.containsKey(baseRuleValues[CSV_INDEX_REGEX_WORDS])) {
