@@ -16,7 +16,7 @@ jobs:
         file: concourse-ci-repo/ci/tasks/gradle-build.yml
         on_failure:
           put: reports
-      - put: nexus-rc
+      - put: maven-rc
         params:
           file: release/((content-labeling-service.app_name)).jar
           version_file: version/version
@@ -28,7 +28,7 @@ jobs:
       - in_parallel:
           - get: app-repo
             passed: [build]
-          - get: nexus-rc
+          - get: maven-rc
             trigger: true
             passed: [build]
           - get: version
@@ -40,7 +40,7 @@ jobs:
           tag: version/version
           tag_as_latest: true
           build_args:
-            JAR_FILE: nexus-rc/((content-labeling-service.app_name))-*.jar
+            JAR_FILE: maven-rc/((content-labeling-service.app_name))-*.jar
             DOCKER_IMAGE: ((proget.uri))((proget.docker_path))/openjdk:8-jre-slim
 
   - name: sonarqube
@@ -77,7 +77,6 @@ jobs:
           MF_DOCKER_IMAGE: ((proget.uri))((proget.docker_path))/rc/((content-labeling-service.app_name)):latest
           MF_DOCKER_USER: ((proget.username))
           MF_ROUTES: [ route: ((content-labeling-service.app_name))-dev.((pcf-dev-environment.app_domain)) ]
-          MF_SERVICES: [ ((splunk.service_name)) ]
           MF_TIMEOUT: ((content-labeling-service-dev.timeout))
           MF_MEMORY: ((content-labeling-service-dev.memory))
           MF_INSTANCES: ((content-labeling-service-dev.instances))
@@ -124,7 +123,6 @@ jobs:
           MF_NAME: ((content-labeling-service.app_name))
           MF_DOCKER_IMAGE: ((proget.uri))((proget.docker_path))/rc/((content-labeling-service.app_name)):latest
           MF_DOCKER_USER: ((proget.username))
-          MF_SERVICES: [ ((splunk.service_name)) ]
           MF_TIMEOUT: ((content-labeling-service-qa.timeout))
           MF_MEMORY: ((content-labeling-service-qa.memory))
           MF_INSTANCES: ((content-labeling-service-qa.instances))
@@ -250,14 +248,13 @@ resources:
       uri: ((git-repo.uri))/concourse-ci.git
       branch: master
       private_key: ((git-repo.ssh_key))
-  - name: nexus-rc
+  - name: maven-rc
     type: maven-resource
     source:
-      url: ((artifact-repo.rc_url))
+      url: ((proget.maven_url))((proget.maven_rc_path))
       artifact: com.identifix:((content-labeling-service.app_name)):jar
-      skip_cert_check: true
-      username: ((artifact-repo.username))
-      password: ((artifact-repo.password))
+      username: ((proget.username))
+      password: ((proget.password))
   - name: docker-image-repo-rc
     type: docker-image
     source:
