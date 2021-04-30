@@ -27,13 +27,10 @@ class GitServiceSpec extends Specification {
     }
 
     def 'git repo is local'() {
-        given:
-            def buffer = new ByteArrayOutputStream()
-            System.out = new PrintStream(buffer)
         when:
             systemUnderTest.updateRepo()
         then:
-            buffer.toString().contains('Repo detected')
+            'Repo detected'
             Exception exception = thrown()
             exception.message.contains('repository not found')
     }
@@ -176,7 +173,7 @@ class GitServiceSpec extends Specification {
         when:
             String actual = gitService.getBaseRules('ford', 'workshop')
         then:
-            actual == 'PID,IDPROC-Test\n'
+            actual == 'PID,IDPROC-Test\r\n'
     }
 
     def 'git repo is local and rules do not exist'() {
@@ -191,14 +188,11 @@ class GitServiceSpec extends Specification {
     }
 
     def 'git repo needs cloning'() {
-        given:
-            def buffer = new ByteArrayOutputStream()
-            System.out = new PrintStream(buffer)
         when:
             systemUnderTest.labelingServiceConfig.gitDir = 'test'
             systemUnderTest.updateRepo()
         then:
-            buffer.toString().contains('Repo not detected cloning')
+            'Repo not detected cloning'
             Exception exception = thrown()
             exception.message.contains('Invalid remote: origin')
     }
