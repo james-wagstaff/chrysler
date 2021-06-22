@@ -33,3 +33,4 @@ out/
 
 documentTable_finished.csv
 .DS_Store
+application.properties
