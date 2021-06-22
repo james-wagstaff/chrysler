@@ -41,6 +41,10 @@ dependencyManagement {
 	}
 }
 
+configurations {
+	all*.exclude module : 'spring-boot-starter-logging'
+}
+
 dependencies {
 	implementation 'org.eclipse.jgit:org.eclipse.jgit'
 	implementation 'org.springframework.boot:spring-boot-starter-cache'
