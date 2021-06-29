@@ -45,7 +45,7 @@ class ServiceInfoLabelMaker extends AbstractLabelMaker {
 
     @Override
     String headerValue(Document document) {
-        return cleanToc(document.tocpath).split(TOC_SPLIT)[1]
+        cleanToc(document.tocpath)
     }
 
     static byte[] toJSONArrayByte(byte[] content) {
