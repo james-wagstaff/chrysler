@@ -173,7 +173,7 @@ class GitServiceSpec extends Specification {
         when:
             String actual = gitService.getBaseRules('ford', 'workshop')
         then:
-        actual.trim() == 'PID,IDPROC-Test'
+            actual.trim() == 'PID,IDPROC-Test'
     }
 
     def 'git repo is local and rules do not exist'() {
