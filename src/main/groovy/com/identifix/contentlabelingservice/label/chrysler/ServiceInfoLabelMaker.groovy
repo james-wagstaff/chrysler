@@ -25,8 +25,7 @@ class ServiceInfoLabelMaker extends AbstractLabelMaker {
 
     @Override
     MessageHandlerResponse labelContent(LabelMakerMessage message) {
-        Manual manual = krakenClient.getManuals(message.year, message.model, null).findAll { it.publisherManualCategory.toLowerCase() == CommonConstants.MANUAL_TYPE_SERVICE.toLowerCase() } [0]
-
+        Manual manual = krakenClient.getManualById(message.manualId)
         byte[] content = krakenClient.getManualBytes(manual)
         String csvFile = krakenClient.buildChryslerLabelingCsv(message.year, message.model, toJSONArrayByte(content), CommonConstants.MANUAL_TYPE_SERVICE)
         labelCsv(csvFile, CommonConstants.PUBLISHER_CHRYSLER, CommonConstants.MANUAL_TYPE_SERVICE, message.manualId, removeDuplicateWords(manual.title))
