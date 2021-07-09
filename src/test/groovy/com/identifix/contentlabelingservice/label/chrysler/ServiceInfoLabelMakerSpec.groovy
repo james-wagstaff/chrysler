@@ -7,6 +7,7 @@ import com.identifix.contentlabelingservice.service.LabelService
 import com.identifix.crawlermqutils.handler.MessageHandlerResponse
 import com.identifix.kraken.client.KrakenClient
 import com.identifix.kraken.client.bean.Manual
+import com.identifix.kraken.client.bean.Vehicle
 import org.json.JSONArray
 import spock.lang.Specification
 
@@ -26,13 +27,14 @@ class ServiceInfoLabelMakerSpec extends Specification {
     def "test label Content"() {
         given:
             LabelMakerMessage message = new ChryslerServiceInfoMessage(crawlerTypeKey:"CHRYSLER_SERVICE_LABEL", manualType:"Service", year:"2018", model:"Jeep Renegade", manualId:"549859cd-7c58-3270-a0e0-56806b022b69")
-            List<Manual> manuals = [ new Manual(publisherManualCategory:"service", publisherDocumentId:"1", title:"Jeep")]
             String label = "label1,title1,to> cpa >th1,category1,linkToPage1,nuxeoId1\n\rlabel2,title2,to > cpa> th2,category2,linkToPage2,nuxeoId2"
+            Vehicle vehicle= new Vehicle("2017", "Chrysler", "Chrysler Pacifica", "FCA", "3.0" )
+            Manual manual = new Manual("24545", "Service", "Chrysler", "516451499161", "Chrysler Pacifica", "", "content" as byte[], vehicle)
         when:
             MessageHandlerResponse result = systemUnderTest.labelContent(message)
         then:
-            1 * mockKrakenClient.getManuals('2018', 'Jeep Renegade', null) >>  manuals
             1 * mockKrakenClient.getManualBytes(_ as Manual) >> "content1".bytes
+            1 * mockKrakenClient.getManualById('549859cd-7c58-3270-a0e0-56806b022b69') >> manual
             1 * mockKrakenClient.buildChryslerLabelingCsv('2018', 'Jeep Renegade', [91, 93], 'Service') >> label
             1 * mockLabelService.createLabel(_ as LabelRequest) >> "label"
             1 * mockGitService.uploadCsv(_, _, _, _)
