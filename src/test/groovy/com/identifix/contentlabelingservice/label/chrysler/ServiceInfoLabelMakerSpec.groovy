@@ -4,6 +4,8 @@ import com.identifix.contentlabelingservice.label.LabelMakerMessage
 import com.identifix.contentlabelingservice.model.LabelRequest
 import com.identifix.contentlabelingservice.service.GitService
 import com.identifix.contentlabelingservice.service.LabelService
+import com.identifix.contentlabelingservice.utils.StringUtils
+import com.identifix.contentlabelingservice.utils.TocConverter
 import com.identifix.crawlermqutils.handler.MessageHandlerResponse
 import com.identifix.kraken.client.KrakenClient
 import com.identifix.kraken.client.bean.Manual
@@ -47,7 +49,7 @@ class ServiceInfoLabelMakerSpec extends Specification {
         given:
             String input = "Jeep Jeep Renegade"
         when:
-            String  result = systemUnderTest.removeDuplicateWords(input)
+            String  result = StringUtils.removeDuplicateWords(input)
         then:
             0 * _
         and:
@@ -65,7 +67,7 @@ class ServiceInfoLabelMakerSpec extends Specification {
                 "    </item>\n" +
                 "</item>").bytes
         when:
-            byte[] result = systemUnderTest.toJSONArrayByte(content)
+            byte[] result = TocConverter.tocXmlToJson(content)
         then:
             0 * _
         and:

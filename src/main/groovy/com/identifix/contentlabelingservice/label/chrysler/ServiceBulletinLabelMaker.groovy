@@ -1,7 +1,6 @@
 package com.identifix.contentlabelingservice.label.chrysler
 
 import static com.identifix.contentlabelingservice.utils.TocConverter.tocXmlToJson
-import static com.identifix.contentlabelingservice.utils.StringUtils.removeDuplicateWords
 
 import com.identifix.contentlabelingservice.label.AbstractLabelMaker
 import com.identifix.contentlabelingservice.label.AbstractLabelMakerMessage
@@ -9,7 +8,6 @@ import com.identifix.contentlabelingservice.label.LabelMakerMessage
 import com.identifix.contentlabelingservice.model.Document
 import com.identifix.contentlabelingservice.utils.CommonConstants
 import com.identifix.crawlermqutils.handler.MessageHandlerResponse
-import com.identifix.kraken.client.bean.Manual
 import groovy.util.logging.Slf4j
 import org.springframework.stereotype.Component
 
@@ -18,17 +16,17 @@ import javax.validation.constraints.Pattern
 
 @Component
 @Slf4j
-class ServiceInfoLabelMaker extends AbstractLabelMaker {
+class ServiceBulletinLabelMaker extends AbstractLabelMaker {
 
-    Class messageClass = ChryslerServiceInfoMessage
+    Class messageClass = ChryslerServiceBulletinMessage
 
     @Override
     MessageHandlerResponse labelContent(LabelMakerMessage message) {
-        Manual manual = krakenClient.getManualById(message.manualId)
-        byte[] content = krakenClient.getManualBytes(manual)
-        String csvFile = krakenClient.buildChryslerLabelingCsv(message.year, message.model, tocXmlToJson(content), CommonConstants.MANUAL_TYPE_SERVICE)
-        labelCsv(csvFile, CommonConstants.PUBLISHER_CHRYSLER, CommonConstants.MANUAL_TYPE_SERVICE, message.manualId, removeDuplicateWords(manual.title))
-        SUCCESS
+        byte[] content = krakenClient.getServiceBulletinVehicleToc(message.manualId)// .getChryslerBulletinBytes(message.manualId) //vehicle toc
+        byte[] jsonBytes = tocXmlToJson(content)
+            String csvFile = krakenClient.buildChryslerServiceBulletinLabelingCsv(message.year, message.model, jsonBytes)//krakenClient.buildChryslerServiceBulletinLabelingCsv(message.year, message.model, jsonBytes, CommonConstants.MANUAL_TYPE_BULLETIN)
+            labelCsv(csvFile, CommonConstants.PUBLISHER_CHRYSLER, CommonConstants.MANUAL_TYPE_BULLETIN, message.manualId, message.manualId)
+            SUCCESS
     }
 
     @Override
@@ -48,10 +46,11 @@ class ServiceInfoLabelMaker extends AbstractLabelMaker {
 
 }
 
-class ChryslerServiceInfoMessage extends AbstractLabelMakerMessage {
+class ChryslerServiceBulletinMessage extends AbstractLabelMakerMessage {
     @NotNull
-    @Pattern(regexp=/CHRYSLER_SERVICE_LABEL/)
+    @Pattern(regexp=/CHRYSLER_SERVICE_BULLETIN_LABEL/)
     String crawlerTypeKey
     @NotNull
     String manualType
 }
+
