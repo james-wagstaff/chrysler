@@ -22,9 +22,9 @@ class ServiceBulletinLabelMaker extends AbstractLabelMaker {
 
     @Override
     MessageHandlerResponse labelContent(LabelMakerMessage message) {
-        byte[] content = krakenClient.getServiceBulletinVehicleToc(message.manualId)// .getChryslerBulletinBytes(message.manualId) //vehicle toc
+        byte[] content = krakenClient.getServiceBulletinVehicleToc(message.manualId)
         byte[] jsonBytes = tocXmlToJson(content)
-            String csvFile = krakenClient.buildChryslerServiceBulletinLabelingCsv(message.year, message.model, jsonBytes)//krakenClient.buildChryslerServiceBulletinLabelingCsv(message.year, message.model, jsonBytes, CommonConstants.MANUAL_TYPE_BULLETIN)
+            String csvFile = krakenClient.buildChryslerServiceBulletinLabelingCsv(message.year, message.model, jsonBytes)
             labelCsv(csvFile, CommonConstants.PUBLISHER_CHRYSLER, CommonConstants.MANUAL_TYPE_BULLETIN, message.manualId, message.manualId)
             SUCCESS
     }

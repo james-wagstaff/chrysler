@@ -101,7 +101,7 @@ abstract class AbstractLabelMaker implements LabelMaker {
 
         log.info("${((totalLabelsFound / totalDocs) * 100).round(2)} % labeled")
 
-        gitService.uploadCsv(labelSpreadsheet as String, publisher, manualType, "${manualId} ${title}")
+        gitService.uploadCsv(labelSpreadsheet as String, publisher, manualType, getFileName(manualType, manualId, title))
     }
 
     String cleanToc(String toc) {
@@ -111,4 +111,8 @@ abstract class AbstractLabelMaker implements LabelMaker {
     abstract Class getMessageClass()
     abstract String titleValue(Document document)
     abstract String headerValue(Document document)
+
+    String getFileName(String manualType, String manualId, String manualTitle) {
+        manualType == 'service_bulletin' ? manualTitle : "${manualId} ${manualTitle}"
+    }
 }
