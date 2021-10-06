@@ -4,7 +4,6 @@ class CommonConstants {
 
     static final String ITEM = "item"
     static final String PAGECODE = "pageCode"
-    static final String FILE = "file"
     static final String TITLE = "title"
     static final String PUBLISHER_CHRYSLER =  "Chrysler"
     static final String MANUAL_TYPE_SERVICE =  "Service"

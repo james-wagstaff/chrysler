@@ -18,13 +18,6 @@ class TocConverter {
                 String tocPath = item.parent().attr(CommonConstants.TITLE)
                 object.put(tocPath)
                 array.put(object)
-            } else if (item.hasAttr(CommonConstants.FILE)) {
-                JSONArray object = new JSONArray()
-                object.put(item.attr(CommonConstants.FILE))
-                object.put(item.attr(CommonConstants.TITLE).trim())
-                String tocPath = item.parent().attr(CommonConstants.TITLE)
-                object.put(tocPath)
-                array.put(object)
             }
         }
         array.toString().bytes
