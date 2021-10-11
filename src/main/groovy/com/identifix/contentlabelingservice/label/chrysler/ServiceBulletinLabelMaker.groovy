@@ -2,6 +2,7 @@ package com.identifix.contentlabelingservice.label.chrysler
 
 import static com.identifix.contentlabelingservice.utils.TocConverter.tocXmlToJson
 
+import com.identifix.contentlabelingservice.web.VehicleDto
 import com.identifix.contentlabelingservice.label.AbstractLabelMaker
 import com.identifix.contentlabelingservice.label.AbstractLabelMakerMessage
 import com.identifix.contentlabelingservice.label.LabelMakerMessage
@@ -52,5 +53,13 @@ class ChryslerServiceBulletinMessage extends AbstractLabelMakerMessage {
     String crawlerTypeKey
     @NotNull
     String manualType
+
+    ChryslerServiceBulletinMessage(VehicleDto vehicle) {
+        crawlerTypeKey = 'CHRYSLER_SERVICE_BULLETIN_LABEL'
+        manualType = 'service_bulletin'
+        year = vehicle.year
+        model = vehicle.model
+        manualId = vehicle.tocName
+    }
 }
 
