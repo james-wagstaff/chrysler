@@ -1,0 +1,39 @@
+---
+concourse-ci:
+  version: 0.0.114
+env-settings:
+  replicas: 2
+project:
+  name: content-labeling-service
+  branch: master
+  git-repo-uri: ((identifix-cms/env-settings/git-repo.uri))
+
+  custom_app_properties_dev:
+    CONFIGSCOPE: ((identifix-cms/app-properties/content-labeling-service-dev.configscope))
+    SPRING_PROFILES: ((identifix-cms/app-properties/content-labeling-service-dev.spring_profiles))
+    CONTENT-LABELING-SERVICE_REPO-USER-NAME: ((identifix-cms/app-properties/content-labeling-service-dev.content-labeling-service_repo-user-name))
+    CONTENT-LABELING-SERVICE_REPO-AUTH-VALUE: ((identifix-cms/app-properties/content-labeling-service-dev.content-labeling-service_repo-auth-value))
+    CONTENT-LABELING-SERVICE_REPO-URL: ((identifix-cms/app-properties/content-labeling-service-dev.content-labeling-service_repo-url))
+    CONTENT-LABELING-SERVICE_KRAKEN-URI: ((identifix-cms/app-properties/content-labeling-service-dev.content-labeling-service_kraken-uri))
+    CONTENT-LABELING-SERVICE_SECURITY-SERVICE-URI: ((identifix-cms/app-properties/content-labeling-service-dev.content-labeling-service_security-service-uri))
+    CONTENT-LABELING-SERVICE_GENERATE-LABEL-QUEUE-NAME: ((identifix-cms/app-properties/content-labeling-service-dev.content-labeling-service_generate-label-queue-name))
+    CONTENT-LABELING-SERVICE_GENERATE-LABEL-EXCHANGE-NAME: ((identifix-cms/app-properties/content-labeling-service-dev.content-labeling-service_generate-label-exchange-name))
+    CONTENT-LABELING-SERVICE_COMPLETE-EXCHANGE-NAME: ((identifix-cms/app-properties/content-labeling-service-dev.content-labeling-service_complete-exchange-name))
+    RABBITMQ_MINIMUM_MS_BETWEEN_MESSAGES: ((identifix-cms/app-properties/content-labeling-service-dev.rabbitmq_minimum_ms_between_messages))
+    CLIENT_ID: ((identifix-cms/app-properties/content-labeling-service-dev.client_id))
+    CLIENT_SECRET: ((identifix-cms/app-properties/content-labeling-service-dev.client_secret))
+
+  custom_app_properties_qae:
+    CONFIGSCOPE: ((identifix-cms/app-properties/content-labeling-service-qae.configscope))
+    SPRING_PROFILES: ((identifix-cms/app-properties/content-labeling-service-qae.spring_profiles))
+    CONTENT-LABELING-SERVICE_KRAKEN-URI: ((identifix-cms/app-properties/content-labeling-service-qae.content-labeling-service_kraken-uri))
+    CONTENT-LABELING-SERVICE_SECURITY-SERVICE-URI: ((identifix-cms/app-properties/content-labeling-service-qae.content-labeling-service_security-service-uri))
+    CONTENT-LABELING-SERVICE_REPO-USER-NAME: ((identifix-cms/app-properties/content-labeling-service-qae.content-labeling-service_repo-user-name))
+    CONTENT-LABELING-SERVICE_REPO-AUTH-VALUE: ((identifix-cms/app-properties/content-labeling-service-qae.content-labeling-service_repo-auth-value))
+    CONTENT-LABELING-SERVICE_REPO-URL: ((identifix-cms/app-properties/content-labeling-service-qae.content-labeling-service_repo-url))
+    CONTENT-LABELING-SERVICE_GENERATE-LABEL-QUEUE-NAME: ((identifix-cms/app-properties/content-labeling-service-qae.content-labeling-service_generate-label-queue-name))
+    CONTENT-LABELING-SERVICE_GENERATE-LABEL-EXCHANGE-NAME: ((identifix-cms/app-properties/content-labeling-service-qae.content-labeling-service_generate-label-exchange-name))
+    CONTENT-LABELING-SERVICE_COMPLETE-EXCHANGE-NAME: ((identifix-cms/app-properties/content-labeling-service-qae.content-labeling-service_complete-exchange-name))
+    RABBITMQ_MINIMUM_MS_BETWEEN_MESSAGES: ((identifix-cms/app-properties/content-labeling-service-qae.rabbitmq_minimum_ms_between_messages))
+    CLIENT_ID: ((identifix-cms/app-properties/content-labeling-service-qae.client_id))
+    CLIENT_SECRET: ((identifix-cms/app-properties/content-labeling-service-qae.client_secret))
