@@ -36,7 +36,6 @@ repositories.addAll buildscript.repositories
 
 dependencyManagement {
 	imports {
-		mavenBom "io.pivotal.spring.cloud:spring-cloud-services-dependencies:${springCloudServicesVersion}"
 		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
 	}
 }
@@ -46,6 +45,10 @@ configurations {
 }
 
 dependencies {
+	implementation group: 'org.springframework.security', name: 'spring-security-config'
+	implementation group: 'org.springframework.security', name: 'spring-security-web'
+	implementation group: 'org.springframework.security', name: 'spring-security-core'
+
 	implementation 'org.eclipse.jgit:org.eclipse.jgit'
 	implementation 'org.springframework.boot:spring-boot-starter-cache'
 	implementation "com.github.ben-manes.caffeine:caffeine:${caffeineVersion}"
@@ -56,7 +59,6 @@ dependencies {
 	implementation "io.springfox:springfox-swagger2:${springfoxSwaggerVersion}"
 	implementation "io.springfox:springfox-swagger-ui:${springfoxSwaggerVersion}"
 	implementation 'org.codehaus.groovy:groovy'
-	implementation 'org.springframework.cloud:spring-cloud-starter-config'
 	implementation 'org.springframework.cloud:spring-cloud-commons'
 	implementation 'org.springframework.cloud:spring-cloud-context'
 	implementation 'org.springframework.boot:spring-boot-starter-amqp'
